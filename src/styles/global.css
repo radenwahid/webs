@@ -137,7 +137,7 @@ a { color: inherit; text-decoration: none; }
   box-shadow: 11px 11px 0px var(--shadow-color);
 }
 
-/* brutal theme card override — alternating colors */
+/* brutal theme card override — 6 warna random per card */
 [data-theme="brutal"] .brutalist-card:nth-child(6n+1) {
   background-color: #0057FF; color: #FFEE00;
 }
@@ -159,9 +159,20 @@ a { color: inherit; text-decoration: none; }
 [data-theme="brutal"] .brutalist-card .service-desc,
 [data-theme="brutal"] .brutalist-card .testi-text,
 [data-theme="brutal"] .brutalist-card .testi-role,
-[data-theme="brutal"] .brutalist-card .testi-name {
+[data-theme="brutal"] .brutalist-card .testi-name,
+[data-theme="brutal"] .brutalist-card .testi-stars {
   color: inherit;
-  opacity: 0.85;
+  opacity: 0.9;
+}
+[data-theme="brutal"] .brutalist-card .testi-tag {
+  background: rgba(0,0,0,0.3);
+  color: inherit;
+  border-color: currentColor;
+}
+[data-theme="brutal"] .brutalist-card .testi-avatar {
+  background: rgba(0,0,0,0.25);
+  color: inherit;
+  border-color: currentColor;
 }
 
 /* cyber theme card */
@@ -171,10 +182,12 @@ a { color: inherit; text-decoration: none; }
 
 /* brutal hero box override */
 [data-theme="brutal"] .hero-box {
-  background-color: #0A0A0A;
+  background-color: #00C853;
+  border-color: #0A0A0A;
 }
-[data-theme="brutal"] .hero-box .c-white { color: #FFEE00; }
-[data-theme="brutal"] .hero-box .c-purple { color: #FF6B00; }
+[data-theme="brutal"] .hero-box .c-white { color: #0A0A0A; }
+[data-theme="brutal"] .hero-box .c-purple { color: #0057FF; }
+[data-theme="brutal"] .hero-box .c-yellow { color: #FF1744; }
 
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: var(--bg); }

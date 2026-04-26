@@ -4,7 +4,7 @@
   background: var(--bg);
 }
 .admin-sidebar {
-  width: 220px;
+  width: 200px;
   flex-shrink: 0;
   background: var(--bg-card);
   border-right: 3px solid var(--border-color);
@@ -13,6 +13,8 @@
   top: 0;
   height: 100vh;
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 .sidebar-logo {
   font-family: 'Syne', sans-serif;
@@ -22,10 +24,16 @@
   padding: 0 1.25rem 1rem;
   border-bottom: 2px solid var(--border-color);
   margin-bottom: .5rem;
+  white-space: nowrap;
 }
 .sidebar-logo span { color: var(--accent); }
-.sidebar-nav { display: flex; flex-direction: column; }
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
 .sidebar-nav a {
+  display: block;
   padding: .75rem 1.25rem;
   font-weight: 600;
   font-size: .85rem;
@@ -33,14 +41,15 @@
   letter-spacing: .04em;
   border-left: 3px solid transparent;
   transition: background .15s, border-color .15s, color .15s;
+  white-space: nowrap;
 }
 .sidebar-nav a:hover, .sidebar-nav a.active {
   background: var(--accent);
   color: var(--accent-text);
   border-left-color: var(--border-color);
 }
-.sidebar-nav a.logout { color: #ef4444; }
-.sidebar-nav a.logout:hover { background: #ef4444; color: #fff; }
+.sidebar-nav a.logout { color: #ef4444; margin-top: auto; }
+.sidebar-nav a.logout:hover { background: #ef4444; color: #fff; border-left-color: #ef4444; }
 
 /* Theme switcher in sidebar */
 .sidebar-themes {

@@ -5,16 +5,16 @@ const { active } = Astro.props;
 <aside class="admin-sidebar">
   <div class="sidebar-logo">ADMIN<span>PANEL</span></div>
   <nav class="sidebar-nav">
-    <a href="/admin" class={active === 'dashboard' ? 'active' : ''}>📊 Dashboard</a>
-    <a href="/admin/services" class={active === 'services' ? 'active' : ''}>⚙️ Services</a>
-    <a href="/admin/testimonials" class={active === 'testimonials' ? 'active' : ''}>💬 Testimoni</a>
-    <a href="/admin/projects" class={active === 'projects' ? 'active' : ''}>🖼️ Galeri</a>
-    <a href="/admin/settings" class={active === 'settings' ? 'active' : ''}>🔑 Settings</a>
-    <a href="/" target="_blank">🌐 Lihat Site</a>
-    <a href="/admin/logout" class="logout">🚪 Logout</a>
+    <a href="/admin" class={active === 'dashboard' ? 'active' : ''}>Dashboard</a>
+    <a href="/admin/services" class={active === 'services' ? 'active' : ''}>Services</a>
+    <a href="/admin/testimonials" class={active === 'testimonials' ? 'active' : ''}>Testimoni</a>
+    <a href="/admin/projects" class={active === 'projects' ? 'active' : ''}>Galeri</a>
+    <a href="/admin/settings" class={active === 'settings' ? 'active' : ''}>Settings</a>
+    <a href="/" target="_blank">Lihat Site</a>
+    <a href="/admin/logout" class="logout">Logout</a>
   </nav>
   <div class="sidebar-themes">
-    <span class="sidebar-themes-label">🎨 Tema</span>
+    <span class="sidebar-themes-label">Tema</span>
     <div class="sidebar-theme-btns">
       <button class="sidebar-theme-btn" data-t="dark">
         <span class="theme-swatch" style="background:#7C3AED"></span>Dark
