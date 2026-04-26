@@ -1,0 +1,108 @@
+---
+export const prerender = false;
+import Layout from '../../layouts/Layout.astro';
+import { requireAuth } from '../../lib/auth';
+
+const authCheck = requireAuth(Astro.request);
+if (authCheck) return authCheck;
+
+let message = '';
+let isError = false;
+
+if (Astro.request.method === 'POST') {
+  const form = await Astro.request.formData();
+  const action = form.get('_action');
+
+  if (action === 'change_password') {
+    const currentUser = form.get('current_username') as string;
+    const currentPass = form.get('current_password') as string;
+    const newUser = form.get('new_username') as string;
+    const newPass = form.get('new_password') as string;
+    const confirmPass = form.get('confirm_password') as string;
+
+    if (currentUser !== import.meta.env.ADMIN_USERNAME || currentPass !== import.meta.env.ADMIN_PASSWORD) {
+      message = 'Username atau password lama salah.';
+      isError = true;
+    } else if (newPass !== confirmPass) {
+      message = 'Password baru tidak cocok.';
+      isError = true;
+    } else if (newPass.length < 8) {
+      message = 'Password baru minimal 8 karakter.';
+      isError = true;
+    } else {
+      // Credentials valid — tampilkan nilai baru untuk di-copy ke Vercel
+      message = `✓ Credentials baru siap. Update di Vercel Dashboard:\nADMIN_USERNAME = ${newUser || currentUser}\nADMIN_PASSWORD = ${newPass}`;
+    }
+  }
+}
+---
+<Layout title="Settings — Admin">
+  <div class="admin-wrap">
+    <aside class="admin-sidebar">
+      <div class="sidebar-logo">ADMIN<span>PANEL</span></div>
+      <nav class="sidebar-nav">
+        <a href="/admin">📊 Dashboard</a>
+        <a href="/admin/services">⚙️ Services</a>
+        <a href="/admin/testimonials">💬 Testimoni</a>
+        <a href="/admin/projects">🖼️ Galeri</a>
+        <a href="/admin/settings" class="active">🔑 Settings</a>
+        <a href="/" target="_blank">🌐 Lihat Site</a>
+        <a href="/admin/logout" class="logout">🚪 Logout</a>
+      </nav>
+    </aside>
+
+    <main class="admin-main">
+      <h1 class="admin-title">Settings</h1>
+
+      {message && (
+        <div class={`alert ${isError ? 'alert-error' : 'alert-success'}`}>
+          <pre style="white-space:pre-wrap;font-family:inherit;margin:0">{message}</pre>
+        </div>
+      )}
+
+      <div class="settings-card">
+        <h2 style="font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:700;margin-bottom:1.5rem">
+          🔑 Ganti Username & Password
+        </h2>
+        <p style="color:var(--text-muted);font-size:.9rem;margin-bottom:1.5rem;line-height:1.6">
+          Setelah submit, copy nilai baru yang muncul dan update di <strong>Vercel Dashboard → Settings → Environment Variables</strong>, lalu Redeploy.
+        </p>
+        <form method="POST" class="admin-form">
+          <input type="hidden" name="_action" value="change_password" />
+          <div class="form-group">
+            <label>Username Saat Ini</label>
+            <input type="text" name="current_username" required autocomplete="username" />
+          </div>
+          <div class="form-group">
+            <label>Password Saat Ini</label>
+            <input type="password" name="current_password" required autocomplete="current-password" />
+          </div>
+          <hr style="border-color:var(--border-color);margin:.5rem 0" />
+          <div class="form-group">
+            <label>Username Baru (kosongkan jika tidak ganti)</label>
+            <input type="text" name="new_username" autocomplete="new-password" placeholder="Biarkan kosong jika tidak ganti" />
+          </div>
+          <div class="form-group">
+            <label>Password Baru (min. 8 karakter)</label>
+            <input type="password" name="new_password" required autocomplete="new-password" minlength="8" />
+          </div>
+          <div class="form-group">
+            <label>Konfirmasi Password Baru</label>
+            <input type="password" name="confirm_password" required autocomplete="new-password" minlength="8" />
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Generate Credentials Baru</button>
+          </div>
+        </form>
+      </div>
+    </main>
+  </div>
+</Layout>
+
+<style>
+  @import '../../styles/admin.css';
+  .alert { padding:.75rem 1rem;border:2px solid var(--border-color);margin-bottom:1.5rem;font-weight:600;font-size:.9rem; }
+  .alert-success { background:var(--accent);color:var(--accent-text); }
+  .alert-error { background:#ef4444;color:#fff;border-color:#991b1b; }
+  .settings-card { background:var(--bg-card);border:3px solid var(--border-color);box-shadow:6px 6px 0 var(--shadow-color);padding:2rem;max-width:520px; }
+</style>
