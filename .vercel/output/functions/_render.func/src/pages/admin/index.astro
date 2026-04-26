@@ -1,0 +1,58 @@
+---
+export const prerender = false;
+import Layout from '../../layouts/Layout.astro';
+import { requireAuth } from '../../lib/auth';
+import { supabaseAdmin } from '../../lib/supabase';
+
+const authCheck = requireAuth(Astro.request);
+if (authCheck) return authCheck;
+
+const [{ data: services }, { data: testimonials }, { data: projects }] = await Promise.all([
+  supabaseAdmin.from('services').select('*').order('sort_order'),
+  supabaseAdmin.from('testimonials').select('*').order('created_at', { ascending: false }),
+  supabaseAdmin.from('projects').select('*').order('created_at', { ascending: false }),
+]);
+---
+<Layout title="Admin Dashboard — Joki Coding">
+  <div class="admin-wrap">
+    <aside class="admin-sidebar">
+      <div class="sidebar-logo">ADMIN<span>PANEL</span></div>
+      <nav class="sidebar-nav">
+        <a href="/admin" class="active">📊 Dashboard</a>
+        <a href="/admin/services">⚙️ Services</a>
+        <a href="/admin/testimonials">💬 Testimoni</a>
+        <a href="/admin/projects">🖼️ Galeri</a>
+        <a href="/" target="_blank">🌐 Lihat Site</a>
+        <a href="/admin/logout" class="logout">🚪 Logout</a>
+      </nav>
+    </aside>
+
+    <main class="admin-main">
+      <h1 class="admin-title">Dashboard</h1>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-num">{services?.length ?? 0}</div>
+          <div class="stat-label">Services</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">{testimonials?.length ?? 0}</div>
+          <div class="stat-label">Testimoni</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">{projects?.length ?? 0}</div>
+          <div class="stat-label">Projects</div>
+        </div>
+      </div>
+
+      <div class="quick-links">
+        <a href="/admin/services" class="btn btn-primary">+ Tambah Service</a>
+        <a href="/admin/testimonials" class="btn btn-primary">+ Tambah Testimoni</a>
+        <a href="/admin/projects" class="btn btn-primary">+ Tambah Project</a>
+      </div>
+    </main>
+  </div>
+</Layout>
+
+<style>
+  @import '../../styles/admin.css';
+</style>

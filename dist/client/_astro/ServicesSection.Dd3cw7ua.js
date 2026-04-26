@@ -1,0 +1,10 @@
+import{j as e,m as c,t as l}from"./i18n.DtP3zLAA.js";import{r as o}from"./index.CVf8TyFT.js";const d={hidden:{opacity:0,y:40},visible:s=>({opacity:1,y:0,transition:{delay:s*.1,duration:.5,ease:"easeOut"}})};function h({services:s}){const[r,a]=o.useState("id");o.useEffect(()=>{const i=localStorage.getItem("lang")||"id";a(i);const t=()=>a(localStorage.getItem("lang")||"id");return window.addEventListener("langchange",t),()=>window.removeEventListener("langchange",t)},[]);const n=l[r];return e.jsxs("section",{className:"section",id:"services",children:[e.jsxs("div",{className:"container",children:[e.jsxs(c.div,{initial:{opacity:0,y:30},whileInView:{opacity:1,y:0},viewport:{once:!0},transition:{duration:.5},className:"section-header",children:[e.jsx("p",{className:"section-label",children:n.services_label}),e.jsx("h2",{className:"section-title",children:n.services_title}),e.jsx("div",{className:"title-underline"})]}),e.jsx("div",{className:"services-grid",children:s.map((i,t)=>e.jsxs(c.div,{className:"brutalist-card service-card",custom:t,initial:"hidden",whileInView:"visible",viewport:{once:!0},variants:d,children:[e.jsx("div",{className:"service-icon",children:i.icon}),e.jsx("h3",{className:"service-title",children:r==="id"?i.title_id:i.title_en}),e.jsx("p",{className:"service-desc",children:r==="id"?i.desc_id:i.desc_en})]},i.id))})]}),e.jsx("style",{children:`
+        .section-header { margin-bottom: 3rem; }
+        .section-label { font-size:.85rem;font-weight:700;text-transform:uppercase;letter-spacing:.15em;color:var(--accent);margin-bottom:.5rem;display:block; }
+        .title-underline { width:60px;height:4px;background:var(--accent);margin-top:.75rem;border:2px solid var(--border-color); }
+        .services-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.5rem; }
+        .service-card { cursor:default; }
+        .service-icon { font-size:2rem;margin-bottom:1rem; }
+        .service-title { font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:700;margin-bottom:.5rem; }
+        .service-desc { color:var(--text-muted);font-size:.95rem;line-height:1.6; }
+      `})]})}export{h as default};

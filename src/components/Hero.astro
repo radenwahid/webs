@@ -1,0 +1,296 @@
+---
+---
+<section class="hero section" id="hero">
+  <div class="container hero-inner">
+    <div class="hero-content">
+      <div class="hero-badge">✦ Available for projects</div>
+      <h1 class="hero-title">
+        JOKI<br/>
+        <span class="hero-coding">CODING</span>
+      </h1>
+      <div class="hero-by">
+        by <span class="raden-text" id="radenText"></span><span class="cursor-blink">|</span>
+      </div>
+      <p class="hero-desc">
+        Butuh bantuan coding? Dari tugas kuliah, skripsi, web, sampai mobile app — gue handle semuanya. Cepat, rapi, dan profesional.
+      </p>
+      <div class="hero-cta">
+        <a href="#contact" class="btn btn-primary">Hubungi Saya →</a>
+        <a href="#services" class="btn btn-outline">Lihat Services</a>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="hero-box-scene" id="heroBoxScene">
+        <div class="hero-box" id="heroBox">
+          <div class="hero-box-inner">
+            <div class="code-line"><span class="c-purple">const</span> <span class="c-white">raden</span> <span class="c-white">=</span> <span class="c-yellow">"joki pro"</span>;</div>
+            <div class="code-line"><span class="c-purple">function</span> <span class="c-white">solve</span><span class="c-white">(</span><span class="c-yellow">task</span><span class="c-white">) {</span></div>
+            <div class="code-line">&nbsp;&nbsp;<span class="c-purple">return</span> <span class="c-yellow">task</span><span class="c-white">.</span><span class="c-purple">done</span><span class="c-white">();</span></div>
+            <div class="code-line"><span class="c-white">}</span></div>
+            <div class="code-line mt"><span class="c-purple">// ✓ delivered on time</span></div>
+          </div>
+          <div class="hero-box-tag">100% DONE</div>
+          <!-- 3D shine overlay -->
+          <div class="box-shine" id="boxShine"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="hero-marquee">
+    <div class="marquee-track">
+      <span>WEB DEV</span><span>✦</span>
+      <span>MOBILE APP</span><span>✦</span>
+      <span>SKRIPSI</span><span>✦</span>
+      <span>TUGAS KULIAH</span><span>✦</span>
+      <span>API INTEGRATION</span><span>✦</span>
+      <span>UI/UX</span><span>✦</span>
+      <span>WEB DEV</span><span>✦</span>
+      <span>MOBILE APP</span><span>✦</span>
+      <span>SKRIPSI</span><span>✦</span>
+      <span>TUGAS KULIAH</span><span>✦</span>
+      <span>API INTEGRATION</span><span>✦</span>
+      <span>UI/UX</span><span>✦</span>
+    </div>
+  </div>
+</section>
+
+<script>
+  import gsap from 'gsap';
+
+  const words = ["RADEN", "RADEN", "ラデン", "R4D3N", "RADEN"];
+  const el = document.getElementById('radenText');
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%";
+  let wordIndex = 0;
+
+  function scramble(target: string) {
+    if (!el) return;
+    let iteration = 0;
+    const maxIter = target.length * 5;
+    const interval = setInterval(() => {
+      el.textContent = target
+        .split("")
+        .map((char, i) => {
+          if (i < Math.floor(iteration / 5)) return char;
+          return chars[Math.floor(Math.random() * chars.length)];
+        })
+        .join("");
+      iteration++;
+      if (iteration >= maxIter) {
+        clearInterval(interval);
+        el.textContent = target;
+        setTimeout(() => {
+          wordIndex = (wordIndex + 1) % words.length;
+          scramble(words[wordIndex]);
+        }, 1800);
+      }
+    }, 40);
+  }
+
+  scramble(words[0]);
+
+  // ── 3D tilt on mouse move ──
+  const scene = document.getElementById('heroBoxScene') as HTMLElement;
+  const box = document.getElementById('heroBox') as HTMLElement;
+  const shine = document.getElementById('boxShine') as HTMLElement;
+
+  scene?.addEventListener('mousemove', (e: MouseEvent) => {
+    const rect = scene.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const dx = (e.clientX - cx) / (rect.width / 2);
+    const dy = (e.clientY - cy) / (rect.height / 2);
+    const rotX = -dy * 14;
+    const rotY = dx * 14;
+    gsap.to(box, {
+      rotateX: rotX,
+      rotateY: rotY,
+      duration: 0.4,
+      ease: 'power2.out',
+      transformPerspective: 800,
+    });
+    // shine follows cursor
+    const shineX = (dx + 1) / 2 * 100;
+    const shineY = (dy + 1) / 2 * 100;
+    if (shine) {
+      shine.style.background = `radial-gradient(circle at ${shineX}% ${shineY}%, rgba(168,85,247,0.18) 0%, transparent 65%)`;
+    }
+  });
+
+  scene?.addEventListener('mouseleave', () => {
+    gsap.to(box, {
+      rotateX: 0,
+      rotateY: 0,
+      duration: 0.6,
+      ease: 'elastic.out(1, 0.5)',
+    });
+    if (shine) shine.style.background = 'none';
+  });
+
+  // Hero box float animation
+  gsap.to("#heroBoxScene", {
+    y: -12,
+    duration: 2.2,
+    ease: "sine.inOut",
+    yoyo: true,
+    repeat: -1,
+  });
+
+  // Hero content entrance
+  gsap.from(".hero-badge", { opacity: 0, y: 30, duration: 0.6, delay: 0.2 });
+  gsap.from(".hero-title", { opacity: 0, y: 50, duration: 0.7, delay: 0.35 });
+  gsap.from(".hero-by", { opacity: 0, y: 30, duration: 0.6, delay: 0.5 });
+  gsap.from(".hero-desc", { opacity: 0, y: 30, duration: 0.6, delay: 0.65 });
+  gsap.from(".hero-cta", { opacity: 0, y: 30, duration: 0.6, delay: 0.8 });
+  gsap.from(".hero-visual", { opacity: 0, x: 60, duration: 0.8, delay: 0.5 });
+</script>
+
+<style>
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-top: 6rem;
+  overflow: hidden;
+}
+.hero-inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: center;
+}
+.hero-badge {
+  display: inline-block;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 0.4rem 1rem;
+  border: 2px solid var(--border-color);
+  box-shadow: 3px 3px 0 var(--border-color);
+  margin-bottom: 1.5rem;
+}
+.hero-title {
+  font-size: clamp(3.5rem, 9vw, 7rem);
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  margin-bottom: 0.5rem;
+}
+.hero-coding {
+  color: var(--accent);
+  -webkit-text-stroke: 2px var(--accent);
+}
+.hero-by {
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: var(--text-muted);
+}
+.raden-text {
+  color: var(--accent);
+  font-weight: 800;
+  min-width: 6ch;
+  display: inline-block;
+}
+.cursor-blink {
+  color: var(--accent);
+  animation: blink 1s step-end infinite;
+}
+@keyframes blink { 50% { opacity: 0; } }
+
+.hero-desc {
+  font-size: 1.1rem;
+  line-height: 1.7;
+  color: var(--text-muted);
+  max-width: 480px;
+  margin-bottom: 2rem;
+}
+.hero-cta {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+/* Code box */
+.hero-visual {
+  display: flex;
+  justify-content: center;
+}
+/* 3D scene wrapper */
+.hero-box-scene {
+  perspective: 800px;
+  width: 100%;
+  max-width: 380px;
+}
+.hero-box {
+  position: relative;
+  background: var(--bg-card);
+  border: 3px solid var(--border-color);
+  box-shadow: 10px 10px 0 var(--shadow-color);
+  padding: 2rem;
+  width: 100%;
+  font-family: 'Courier New', monospace;
+  font-size: 0.95rem;
+  transform-style: preserve-3d;
+  will-change: transform;
+  overflow: hidden;
+}
+/* Shine overlay for 3D light effect */
+.box-shine {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transition: background 0.1s ease;
+  border-radius: inherit;
+}
+.hero-box-tag {
+  position: absolute;
+  top: -18px;
+  right: 16px;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.75rem;
+  border: 2px solid var(--border-color);
+  letter-spacing: 0.1em;
+}
+.code-line { line-height: 1.8; }
+.code-line.mt { margin-top: 0.5rem; }
+.c-purple { color: #A855F7; }
+.c-yellow { color: #FACC15; }
+.c-white { color: var(--text); }
+
+/* Marquee */
+.hero-marquee {
+  margin-top: 4rem;
+  border-top: 3px solid var(--border-color);
+  border-bottom: 3px solid var(--border-color);
+  overflow: hidden;
+  padding: 0.75rem 0;
+  background: var(--accent);
+}
+.marquee-track {
+  display: flex;
+  gap: 2rem;
+  white-space: nowrap;
+  animation: marquee 20s linear infinite;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+}
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@media (max-width: 768px) {
+  .hero-inner { grid-template-columns: 1fr; gap: 2rem; }
+  .hero-visual { display: none; }
+}
+</style>

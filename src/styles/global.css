@@ -1,0 +1,171 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@700;800&display=swap');
+
+:root {
+  --border: 3px solid;
+  --shadow: 5px 5px 0px;
+  --shadow-lg: 8px 8px 0px;
+}
+
+/* ── DARK — hitam + ungu ── */
+[data-theme="dark"] {
+  --bg: #0A0A0A;
+  --bg-card: #111111;
+  --text: #F5F5F0;
+  --text-muted: #A1A1AA;
+  --border-color: #F5F5F0;
+  --shadow-color: #7C3AED;
+  --accent: #7C3AED;
+  --accent-text: #ffffff;
+  --marquee-bg: #7C3AED;
+}
+
+/* ── LIGHT — putih + ungu ── */
+[data-theme="light"] {
+  --bg: #F5F5F0;
+  --bg-card: #FFFFFF;
+  --text: #0A0A0A;
+  --text-muted: #52525B;
+  --border-color: #0A0A0A;
+  --shadow-color: #7C3AED;
+  --accent: #6B21A8;
+  --accent-text: #ffffff;
+  --marquee-bg: #6B21A8;
+}
+
+/* ── BRUTAL — kuning + hitam + merah, full neo brutalism klasik ── */
+[data-theme="brutal"] {
+  --bg: #FFEE00;
+  --bg-card: #FF3B3B;
+  --text: #0A0A0A;
+  --text-muted: #1a1a1a;
+  --border-color: #0A0A0A;
+  --shadow-color: #0A0A0A;
+  --accent: #0A0A0A;
+  --accent-text: #FFEE00;
+  --marquee-bg: #0A0A0A;
+}
+
+/* ── CYBER — hijau neon + hitam ── */
+[data-theme="cyber"] {
+  --bg: #050F05;
+  --bg-card: #0A1A0A;
+  --text: #00FF41;
+  --text-muted: #00AA2A;
+  --border-color: #00FF41;
+  --shadow-color: #00FF41;
+  --accent: #00FF41;
+  --accent-text: #050F05;
+  --marquee-bg: #00FF41;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Space Grotesk', sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
+  transition: background-color 0.25s ease, color 0.25s ease;
+  overflow-x: hidden;
+}
+
+h1, h2, h3 { font-family: 'Syne', sans-serif; }
+a { color: inherit; text-decoration: none; }
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.btn {
+  display: inline-block;
+  padding: 0.75rem 1.75rem;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  border: var(--border) var(--border-color);
+  box-shadow: var(--shadow) var(--shadow-color);
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: none;
+}
+.btn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 7px 7px 0px var(--shadow-color);
+}
+.btn:active {
+  transform: translate(3px, 3px);
+  box-shadow: 2px 2px 0px var(--shadow-color);
+}
+.btn-primary {
+  background-color: var(--accent);
+  color: var(--accent-text);
+  border-color: var(--border-color);
+}
+.btn-outline {
+  background-color: transparent;
+  color: var(--text);
+  border-color: var(--border-color);
+}
+
+.section { padding: 6rem 0; }
+
+.section-title {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 800;
+  line-height: 1.1;
+  margin-bottom: 0.5rem;
+}
+
+.brutalist-card {
+  background-color: var(--bg-card);
+  border: var(--border) var(--border-color);
+  box-shadow: var(--shadow-lg) var(--shadow-color);
+  padding: 1.5rem;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.brutalist-card:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: 11px 11px 0px var(--shadow-color);
+}
+
+/* brutal theme card override — alternating colors */
+[data-theme="brutal"] .brutalist-card:nth-child(odd) {
+  background-color: #FF3B3B;
+  color: #0A0A0A;
+}
+[data-theme="brutal"] .brutalist-card:nth-child(even) {
+  background-color: #0A0A0A;
+  color: #FFEE00;
+}
+[data-theme="brutal"] .brutalist-card:nth-child(even) .service-desc,
+[data-theme="brutal"] .brutalist-card:nth-child(even) .testi-text,
+[data-theme="brutal"] .brutalist-card:nth-child(even) .testi-role {
+  color: #FFEE00cc;
+}
+[data-theme="brutal"] .brutalist-card:nth-child(3n) {
+  background-color: #0057FF;
+  color: #FFEE00;
+}
+[data-theme="brutal"] .brutalist-card:nth-child(3n) .service-desc,
+[data-theme="brutal"] .brutalist-card:nth-child(3n) .testi-text,
+[data-theme="brutal"] .brutalist-card:nth-child(3n) .testi-role {
+  color: #FFEE00cc;
+}
+
+/* cyber theme card */
+[data-theme="cyber"] .brutalist-card {
+  background-color: #0A1A0A;
+}
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--accent); }

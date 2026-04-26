@@ -1,0 +1,125 @@
+---
+export const prerender = false;
+import Layout from '../../layouts/Layout.astro';
+import { requireAuth } from '../../lib/auth';
+import { supabaseAdmin } from '../../lib/supabase';
+
+const authCheck = requireAuth(Astro.request);
+if (authCheck) return authCheck;
+
+let message = '';
+
+if (Astro.request.method === 'POST') {
+  const form = await Astro.request.formData();
+  const action = form.get('_action');
+  if (action === 'create' || action === 'update') {
+    const data = {
+      name: form.get('name'), role: form.get('role'),
+      text: form.get('text'), stars: Number(form.get('stars') || 5),
+      tag: form.get('tag'), visible: form.get('visible') === 'true',
+    };
+    if (action === 'create') { await supabaseAdmin.from('testimonials').insert(data); message = 'Testimoni ditambahkan!'; }
+    else { await supabaseAdmin.from('testimonials').update(data).eq('id', form.get('id')); message = 'Testimoni diupdate!'; }
+  } else if (action === 'delete') {
+    await supabaseAdmin.from('testimonials').delete().eq('id', form.get('id'));
+    message = 'Testimoni dihapus.';
+  }
+}
+
+const { data: testimonials } = await supabaseAdmin.from('testimonials').select('*').order('created_at', { ascending: false });
+---
+<Layout title="Testimoni — Admin">
+  <div class="admin-wrap">
+    <aside class="admin-sidebar">
+      <div class="sidebar-logo">ADMIN<span>PANEL</span></div>
+      <nav class="sidebar-nav">
+        <a href="/admin">📊 Dashboard</a>
+        <a href="/admin/services">⚙️ Services</a>
+        <a href="/admin/testimonials" class="active">💬 Testimoni</a>
+        <a href="/admin/projects">🖼️ Galeri</a>
+        <a href="/" target="_blank">🌐 Lihat Site</a>
+        <a href="/admin/logout" class="logout">🚪 Logout</a>
+      </nav>
+    </aside>
+    <main class="admin-main">
+      <h1 class="admin-title">Testimoni</h1>
+      {message && <div class="alert">{message}</div>}
+
+      <details class="form-details">
+        <summary>+ Tambah Testimoni Baru</summary>
+        <form method="POST" class="admin-form" style="margin-top:1rem">
+          <input type="hidden" name="_action" value="create" />
+          <div class="form-row">
+            <div class="form-group"><label>Nama</label><input name="name" required /></div>
+            <div class="form-group"><label>Role / Jabatan</label><input name="role" required /></div>
+          </div>
+          <div class="form-group"><label>Testimoni</label><textarea name="text" required></textarea></div>
+          <div class="form-row">
+            <div class="form-group"><label>Tag</label><input name="tag" value="Project" /></div>
+            <div class="form-group"><label>Bintang (1-5)</label><input name="stars" type="number" min="1" max="5" value="5" /></div>
+          </div>
+          <div class="form-group">
+            <label>Visible</label>
+            <select name="visible"><option value="true">Ya</option><option value="false">Tidak</option></select>
+          </div>
+          <div class="form-actions"><button type="submit" class="btn btn-primary">Simpan</button></div>
+        </form>
+      </details>
+
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead><tr><th>Nama</th><th>Testimoni</th><th>Tag</th><th>Status</th><th>Aksi</th></tr></thead>
+          <tbody>
+            {testimonials?.map(t => (
+              <tr>
+                <td><strong>{t.name}</strong><br/><small style="color:var(--text-muted)">{t.role}</small></td>
+                <td style="max-width:240px;font-size:.85rem">{t.text.slice(0, 80)}...</td>
+                <td>{t.tag}</td>
+                <td><span class={`badge ${t.visible ? 'badge-on' : 'badge-off'}`}>{t.visible ? 'Aktif' : 'Hidden'}</span></td>
+                <td>
+                  <details class="inline-edit">
+                    <summary class="btn btn-outline btn-sm">Edit</summary>
+                    <form method="POST" class="admin-form" style="margin-top:.75rem;padding:1rem;border:2px solid var(--border-color)">
+                      <input type="hidden" name="_action" value="update" />
+                      <input type="hidden" name="id" value={t.id} />
+                      <div class="form-row">
+                        <div class="form-group"><label>Nama</label><input name="name" value={t.name} /></div>
+                        <div class="form-group"><label>Role</label><input name="role" value={t.role} /></div>
+                      </div>
+                      <div class="form-group"><label>Testimoni</label><textarea name="text">{t.text}</textarea></div>
+                      <div class="form-row">
+                        <div class="form-group"><label>Tag</label><input name="tag" value={t.tag} /></div>
+                        <div class="form-group"><label>Bintang</label><input name="stars" type="number" min="1" max="5" value={t.stars} /></div>
+                      </div>
+                      <div class="form-group">
+                        <label>Visible</label>
+                        <select name="visible">
+                          <option value="true" selected={t.visible}>Ya</option>
+                          <option value="false" selected={!t.visible}>Tidak</option>
+                        </select>
+                      </div>
+                      <div class="form-actions"><button type="submit" class="btn btn-primary btn-sm">Update</button></div>
+                    </form>
+                  </details>
+                  <form method="POST" style="display:inline" onsubmit="return confirm('Hapus testimoni ini?')">
+                    <input type="hidden" name="_action" value="delete" />
+                    <input type="hidden" name="id" value={t.id} />
+                    <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
+                  </form>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+</Layout>
+<style>
+  @import '../../styles/admin.css';
+  .alert { background:var(--accent);color:var(--accent-text);padding:.75rem 1rem;border:2px solid var(--border-color);margin-bottom:1rem;font-weight:700; }
+  .form-details summary { cursor:pointer;font-weight:700;padding:.75rem 1rem;background:var(--bg-card);border:2px solid var(--border-color);display:inline-block; }
+  .form-details { margin-bottom:1.5rem; }
+  .inline-edit { display:inline-block; }
+  .inline-edit summary { list-style:none; }
+</style>

@@ -1,0 +1,140 @@
+---
+export const prerender = false;
+import Layout from '../../layouts/Layout.astro';
+import { requireAuth } from '../../lib/auth';
+import { supabaseAdmin } from '../../lib/supabase';
+
+const authCheck = requireAuth(Astro.request);
+if (authCheck) return authCheck;
+
+let message = '';
+
+if (Astro.request.method === 'POST') {
+  const form = await Astro.request.formData();
+  const action = form.get('_action');
+
+  if (action === 'create' || action === 'update') {
+    const data = {
+      icon: form.get('icon'),
+      title_id: form.get('title_id'),
+      title_en: form.get('title_en'),
+      desc_id: form.get('desc_id'),
+      desc_en: form.get('desc_en'),
+      sort_order: Number(form.get('sort_order') || 0),
+      visible: form.get('visible') === 'true',
+    };
+    if (action === 'create') {
+      await supabaseAdmin.from('services').insert(data);
+      message = 'Service berhasil ditambahkan!';
+    } else {
+      await supabaseAdmin.from('services').update(data).eq('id', form.get('id'));
+      message = 'Service berhasil diupdate!';
+    }
+  } else if (action === 'delete') {
+    await supabaseAdmin.from('services').delete().eq('id', form.get('id'));
+    message = 'Service dihapus.';
+  }
+}
+
+const { data: services } = await supabaseAdmin.from('services').select('*').order('sort_order');
+---
+<Layout title="Services — Admin">
+  <div class="admin-wrap">
+    <aside class="admin-sidebar">
+      <div class="sidebar-logo">ADMIN<span>PANEL</span></div>
+      <nav class="sidebar-nav">
+        <a href="/admin">📊 Dashboard</a>
+        <a href="/admin/services" class="active">⚙️ Services</a>
+        <a href="/admin/testimonials">💬 Testimoni</a>
+        <a href="/admin/projects">🖼️ Galeri</a>
+        <a href="/" target="_blank">🌐 Lihat Site</a>
+        <a href="/admin/logout" class="logout">🚪 Logout</a>
+      </nav>
+    </aside>
+    <main class="admin-main">
+      <h1 class="admin-title">Services</h1>
+      {message && <div class="alert">{message}</div>}
+
+      <!-- Add Form -->
+      <details class="form-details">
+        <summary>+ Tambah Service Baru</summary>
+        <form method="POST" class="admin-form" style="margin-top:1rem">
+          <input type="hidden" name="_action" value="create" />
+          <div class="form-row">
+            <div class="form-group"><label>Icon (emoji)</label><input name="icon" value="🔧" required /></div>
+            <div class="form-group"><label>Sort Order</label><input name="sort_order" type="number" value="0" /></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Judul (ID)</label><input name="title_id" required /></div>
+            <div class="form-group"><label>Title (EN)</label><input name="title_en" required /></div>
+          </div>
+          <div class="form-group"><label>Deskripsi (ID)</label><textarea name="desc_id" required></textarea></div>
+          <div class="form-group"><label>Description (EN)</label><textarea name="desc_en" required></textarea></div>
+          <div class="form-group">
+            <label>Visible</label>
+            <select name="visible"><option value="true">Ya</option><option value="false">Tidak</option></select>
+          </div>
+          <div class="form-actions"><button type="submit" class="btn btn-primary">Simpan</button></div>
+        </form>
+      </details>
+
+      <!-- Table -->
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead><tr><th>Icon</th><th>Judul</th><th>Status</th><th>Aksi</th></tr></thead>
+          <tbody>
+            {services?.map(s => (
+              <tr>
+                <td>{s.icon}</td>
+                <td><strong>{s.title_id}</strong><br/><small style="color:var(--text-muted)">{s.title_en}</small></td>
+                <td><span class={`badge ${s.visible ? 'badge-on' : 'badge-off'}`}>{s.visible ? 'Aktif' : 'Hidden'}</span></td>
+                <td>
+                  <details class="inline-edit">
+                    <summary class="btn btn-outline btn-sm">Edit</summary>
+                    <form method="POST" class="admin-form" style="margin-top:.75rem;padding:1rem;border:2px solid var(--border-color)">
+                      <input type="hidden" name="_action" value="update" />
+                      <input type="hidden" name="id" value={s.id} />
+                      <div class="form-row">
+                        <div class="form-group"><label>Icon</label><input name="icon" value={s.icon} /></div>
+                        <div class="form-group"><label>Sort</label><input name="sort_order" type="number" value={s.sort_order} /></div>
+                      </div>
+                      <div class="form-row">
+                        <div class="form-group"><label>Judul ID</label><input name="title_id" value={s.title_id} /></div>
+                        <div class="form-group"><label>Title EN</label><input name="title_en" value={s.title_en} /></div>
+                      </div>
+                      <div class="form-group"><label>Desc ID</label><textarea name="desc_id">{s.desc_id}</textarea></div>
+                      <div class="form-group"><label>Desc EN</label><textarea name="desc_en">{s.desc_en}</textarea></div>
+                      <div class="form-group">
+                        <label>Visible</label>
+                        <select name="visible">
+                          <option value="true" selected={s.visible}>Ya</option>
+                          <option value="false" selected={!s.visible}>Tidak</option>
+                        </select>
+                      </div>
+                      <div class="form-actions">
+                        <button type="submit" class="btn btn-primary btn-sm">Update</button>
+                      </div>
+                    </form>
+                  </details>
+                  <form method="POST" style="display:inline" onsubmit="return confirm('Hapus service ini?')">
+                    <input type="hidden" name="_action" value="delete" />
+                    <input type="hidden" name="id" value={s.id} />
+                    <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
+                  </form>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+</Layout>
+<style>
+  @import '../../styles/admin.css';
+  .alert { background:var(--accent);color:var(--accent-text);padding:.75rem 1rem;border:2px solid var(--border-color);margin-bottom:1rem;font-weight:700; }
+  .form-details summary { cursor:pointer;font-weight:700;padding:.75rem 1rem;background:var(--bg-card);border:2px solid var(--border-color);display:inline-block; }
+  .form-details { margin-bottom:1.5rem; }
+  .inline-edit { display:inline-block; }
+  .inline-edit summary { list-style:none; }
+</style>

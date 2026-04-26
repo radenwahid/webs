@@ -1,0 +1,116 @@
+---
+---
+<section class="section contact-section" id="contact">
+  <div class="container">
+    <div class="contact-inner">
+      <div class="contact-left">
+        <p class="section-label">✦ Let's Work Together</p>
+        <h2 class="section-title">LANGSUNG<br/>HUBUNGI<br/>SAYA</h2>
+        <div class="title-underline"></div>
+        <p class="contact-note">
+          Harga menyesuaikan kebutuhan project kamu. Ceritain dulu aja, nggak ada yang terlalu susah.
+        </p>
+      </div>
+      <div class="contact-right">
+        <div class="contact-card brutalist-card">
+          <div class="contact-icon">💬</div>
+          <h3>Chat via WhatsApp</h3>
+          <p>Respon cepat, langsung diskusi kebutuhan project kamu.</p>
+          <a
+            href="https://wa.me/62xxxxxxxxxx?text=Halo%20Raden%2C%20saya%20mau%20konsultasi%20project"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="btn btn-primary wa-btn"
+          >
+            <span>WhatsApp Sekarang</span>
+            <span class="wa-arrow">→</span>
+          </a>
+        </div>
+        <div class="contact-tags">
+          <span class="tag">⚡ Fast Response</span>
+          <span class="tag">✓ Revisi Included</span>
+          <span class="tag">🔒 Privasi Terjaga</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+.contact-section {
+  border-top: 3px solid var(--border-color);
+}
+.contact-inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: center;
+}
+.section-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--accent);
+  margin-bottom: 0.5rem;
+  display: block;
+}
+.title-underline {
+  width: 60px;
+  height: 4px;
+  background: var(--accent);
+  margin-top: 0.75rem;
+  border: 2px solid var(--border-color);
+  margin-bottom: 1.5rem;
+}
+.contact-note {
+  color: var(--text-muted);
+  font-size: 1rem;
+  line-height: 1.7;
+  max-width: 380px;
+}
+.contact-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.contact-icon { font-size: 2.5rem; }
+.contact-card h3 {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+.contact-card p {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+.wa-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+  text-align: left;
+}
+.wa-arrow { font-size: 1.2rem; }
+.contact-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+.tag {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.4rem 0.8rem;
+  border: 2px solid var(--border-color);
+  box-shadow: 3px 3px 0 var(--shadow-color);
+}
+
+@media (max-width: 768px) {
+  .contact-inner { grid-template-columns: 1fr; gap: 2rem; }
+}
+</style>

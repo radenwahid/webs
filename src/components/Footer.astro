@@ -1,0 +1,67 @@
+---
+---
+<footer class="footer">
+  <div class="container footer-inner">
+    <div class="footer-brand">
+      <span class="footer-logo">JOKI<span>CODING</span></span>
+      <span class="footer-sub">by Raden</span>
+    </div>
+    <p class="footer-copy">© 2025 Joki Coding by Raden. All rights reserved.</p>
+    <div class="footer-socials">
+      <a href="#" aria-label="Instagram">IG</a>
+      <a href="#" aria-label="GitHub">GH</a>
+      <a href="#" aria-label="LinkedIn">LI</a>
+    </div>
+  </div>
+</footer>
+
+<style>
+.footer {
+  border-top: 3px solid var(--border-color);
+  padding: 2rem 0;
+  background: var(--bg-card);
+}
+.footer-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+.footer-brand {
+  display: flex;
+  flex-direction: column;
+}
+.footer-logo {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 1.1rem;
+  text-transform: uppercase;
+}
+.footer-logo span { color: var(--accent); }
+.footer-sub {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+.footer-copy {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+.footer-socials {
+  display: flex;
+  gap: 0.75rem;
+}
+.footer-socials a {
+  font-weight: 700;
+  font-size: 0.8rem;
+  padding: 0.4rem 0.7rem;
+  border: 2px solid var(--border-color);
+  box-shadow: 2px 2px 0 var(--shadow-color);
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+.footer-socials a:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 var(--shadow-color);
+  color: var(--accent);
+}
+</style>

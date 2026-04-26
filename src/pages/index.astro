@@ -1,0 +1,31 @@
+---
+export const prerender = true;
+import Layout from '../layouts/Layout.astro';
+import Navbar from '../components/Navbar.astro';
+import Hero from '../components/Hero.astro';
+import ServicesSection from '../components/ServicesSection';
+import TestimonialsSection from '../components/TestimonialsSection';
+import Contact from '../components/Contact.astro';
+import Footer from '../components/Footer.astro';
+import { supabase } from '../lib/supabase';
+
+const { data: services } = await supabase.from('services').select('*').eq('visible', true).order('sort_order');
+const { data: testimonials } = await supabase.from('testimonials').select('*').eq('visible', true).order('created_at');
+
+const fallbackServices = services?.length ? services : [];
+const fallbackTestimonials = testimonials?.length ? testimonials : [];
+---
+<Layout
+  title="Joki Coding by Raden — Solusi Coding Profesional"
+  description="Jasa joki coding profesional: tugas kuliah, skripsi, web development, mobile app, API integration. Cepat, rapi, terpercaya."
+  lang="id"
+>
+  <Navbar />
+  <main>
+    <Hero />
+    <ServicesSection client:visible services={fallbackServices} />
+    <TestimonialsSection client:visible testimonials={fallbackTestimonials} />
+    <Contact />
+  </main>
+  <Footer />
+</Layout>

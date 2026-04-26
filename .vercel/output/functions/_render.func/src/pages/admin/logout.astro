@@ -1,0 +1,6 @@
+---
+export const prerender = false;
+const res = new Response(null, { status: 302, headers: { Location: '/admin/login' } });
+res.headers.append('Set-Cookie', 'admin_auth=; Path=/; HttpOnly; Max-Age=0');
+return res;
+---

@@ -1,0 +1,113 @@
+---
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+  lang?: string;
+}
+const {
+  title = 'Joki Coding by Raden — Solusi Coding Profesional',
+  description = 'Jasa joki coding profesional: tugas kuliah, skripsi, web development, mobile app, API integration. Cepat, rapi, terpercaya.',
+  image = '/og-image.png',
+  lang = 'id',
+} = Astro.props;
+const canonical = Astro.url.href;
+---
+<!DOCTYPE html>
+<html lang={lang} data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{title}</title>
+  <meta name="description" content={description} />
+  <link rel="canonical" href={canonical} />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content={canonical} />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:image" content={image} />
+  <meta property="og:locale" content={lang === 'id' ? 'id_ID' : 'en_US'} />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={title} />
+  <meta name="twitter:description" content={description} />
+  <meta name="twitter:image" content={image} />
+
+  <!-- Schema.org -->
+  <script type="application/ld+json" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "ProfessionalService",
+    "name": "Joki Coding by Raden",
+    "description": description,
+    "url": canonical,
+    "serviceType": ["Web Development", "Mobile App Development", "Programming Tutoring"],
+    "areaServed": "ID",
+    "availableLanguage": ["Indonesian", "English"],
+  })} />
+
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <script is:inline>
+    (function() {
+      const t = localStorage.getItem('theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', t);
+      const l = localStorage.getItem('lang') || 'id';
+      document.documentElement.setAttribute('lang', l);
+    })();
+  </script>
+</head>
+<body>
+  <slot />
+
+  <button class="scroll-top" id="scrollTop" aria-label="Scroll to top">↑</button>
+
+  <script>
+    import gsap from 'gsap';
+    const btn = document.getElementById('scrollTop');
+    let visible = false;
+    window.addEventListener('scroll', () => {
+      const shouldShow = window.scrollY > 300;
+      if (shouldShow && !visible) {
+        visible = true;
+        btn!.style.display = 'flex';
+        gsap.fromTo(btn, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out' });
+      } else if (!shouldShow && visible) {
+        visible = false;
+        gsap.to(btn, { opacity: 0, y: 20, duration: 0.2, ease: 'power2.in', onComplete: () => { btn!.style.display = 'none'; } });
+      }
+    });
+    btn?.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  </script>
+</body>
+</html>
+
+<style is:global>
+  @import '../styles/global.css';
+
+  .scroll-top {
+    display: none;
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: 999;
+    width: 48px;
+    height: 48px;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    font-weight: 800;
+    font-family: 'Space Grotesk', sans-serif;
+    background: var(--accent);
+    color: var(--accent-text);
+    border: 3px solid var(--border-color);
+    box-shadow: 5px 5px 0 var(--shadow-color);
+    cursor: pointer;
+    transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.25s, border-color 0.25s;
+  }
+  .scroll-top:hover { transform: translate(-2px,-2px); box-shadow: 7px 7px 0 var(--shadow-color); }
+  .scroll-top:active { transform: translate(3px,3px); box-shadow: 2px 2px 0 var(--shadow-color); }
+</style>

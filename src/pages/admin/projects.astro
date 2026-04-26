@@ -1,0 +1,249 @@
+---
+export const prerender = false;
+import Layout from '../../layouts/Layout.astro';
+import { requireAuth } from '../../lib/auth';
+import { supabaseAdmin } from '../../lib/supabase';
+
+const authCheck = requireAuth(Astro.request);
+if (authCheck) return authCheck;
+
+let message = '';
+
+if (Astro.request.method === 'POST') {
+  const form = await Astro.request.formData();
+  const action = form.get('_action');
+
+  if (action === 'upload') {
+    // Handle image upload — compressed base64 from client
+    const imageData = String(form.get('image_data') || '');
+    const imageName = String(form.get('image_name') || `img_${Date.now()}.webp`);
+
+    if (imageData && imageData.startsWith('data:')) {
+      const base64 = imageData.split(',')[1];
+      const mimeMatch = imageData.match(/data:([^;]+);/);
+      const mime = mimeMatch ? mimeMatch[1] : 'image/webp';
+      const buffer = Buffer.from(base64, 'base64');
+      const filename = `${Date.now()}_${imageName}`;
+
+      const { data, error } = await supabaseAdmin.storage
+        .from('projects')
+        .upload(filename, buffer, { contentType: mime, upsert: false });
+
+      if (!error && data) {
+        const { data: urlData } = supabaseAdmin.storage.from('projects').getPublicUrl(filename);
+        message = `IMAGE_URL:${urlData.publicUrl}`;
+      } else {
+        message = `Upload error: ${error?.message}`;
+      }
+    } else {
+      message = 'Tidak ada data gambar.';
+    }
+  } else if (action === 'create' || action === 'update') {
+    const tagsRaw = String(form.get('tags') || '');
+    const tags = tagsRaw.split(',').map(t => t.trim()).filter(Boolean);
+    const data = {
+      title: form.get('title'),
+      description: form.get('description'),
+      image_url: form.get('image_url'),
+      link: form.get('link'),
+      tags,
+      visible: form.get('visible') === 'true',
+    };
+    if (action === 'create') { await supabaseAdmin.from('projects').insert(data); message = 'Project ditambahkan!'; }
+    else { await supabaseAdmin.from('projects').update(data).eq('id', form.get('id')); message = 'Project diupdate!'; }
+  } else if (action === 'delete') {
+    await supabaseAdmin.from('projects').delete().eq('id', form.get('id'));
+    message = 'Project dihapus.';
+  }
+}
+
+const { data: projects } = await supabaseAdmin.from('projects').select('*').order('created_at', { ascending: false });
+const uploadedUrl = message.startsWith('IMAGE_URL:') ? message.replace('IMAGE_URL:', '') : '';
+if (uploadedUrl) message = `✓ Upload berhasil! URL: ${uploadedUrl}`;
+---
+<Layout title="Galeri — Admin">
+  <div class="admin-wrap">
+    <aside class="admin-sidebar">
+      <div class="sidebar-logo">ADMIN<span>PANEL</span></div>
+      <nav class="sidebar-nav">
+        <a href="/admin">📊 Dashboard</a>
+        <a href="/admin/services">⚙️ Services</a>
+        <a href="/admin/testimonials">💬 Testimoni</a>
+        <a href="/admin/projects" class="active">🖼️ Galeri</a>
+        <a href="/" target="_blank">🌐 Lihat Site</a>
+        <a href="/admin/logout" class="logout">🚪 Logout</a>
+      </nav>
+    </aside>
+    <main class="admin-main">
+      <h1 class="admin-title">Galeri Project</h1>
+      {message && <div class="alert">{message}</div>}
+
+      <!-- Upload Image -->
+      <details class="form-details">
+        <summary>📤 Upload Gambar ke Storage</summary>
+        <form method="POST" enctype="multipart/form-data" class="admin-form" style="margin-top:1rem" id="uploadForm">
+          <input type="hidden" name="_action" value="upload" />
+          <input type="hidden" name="image_data" id="imageData" />
+          <input type="hidden" name="image_name" id="imageName" />
+          <div class="form-group">
+            <label>Pilih Gambar (JPG/PNG/WebP)</label>
+            <input type="file" name="image_raw" id="imageRaw" accept="image/*" required />
+          </div>
+          <div id="previewWrap" style="display:none;margin-top:.75rem">
+            <img id="previewImg" style="max-width:100%;max-height:200px;border:2px solid var(--border-color)" />
+            <p id="sizeInfo" style="font-size:.8rem;color:var(--text-muted);margin-top:.4rem"></p>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary" id="uploadBtn">Upload</button>
+          </div>
+        </form>
+      </details>
+
+      <!-- Add Project -->
+      <details class="form-details">
+        <summary>+ Tambah Project Baru</summary>
+        <form method="POST" class="admin-form" style="margin-top:1rem">
+          <input type="hidden" name="_action" value="create" />
+          <div class="form-group"><label>Judul Project</label><input name="title" required /></div>
+          <div class="form-group"><label>Deskripsi</label><textarea name="description"></textarea></div>
+          <div class="form-group"><label>URL Gambar (dari upload di atas)</label><input name="image_url" placeholder="https://..." /></div>
+          <div class="form-group"><label>Link Project</label><input name="link" placeholder="https://..." /></div>
+          <div class="form-group"><label>Tags (pisah koma)</label><input name="tags" placeholder="React, Node.js, Skripsi" /></div>
+          <div class="form-group">
+            <label>Visible</label>
+            <select name="visible"><option value="true">Ya</option><option value="false">Tidak</option></select>
+          </div>
+          <div class="form-actions"><button type="submit" class="btn btn-primary">Simpan</button></div>
+        </form>
+      </details>
+
+      <!-- Table -->
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead><tr><th>Gambar</th><th>Judul</th><th>Link</th><th>Status</th><th>Aksi</th></tr></thead>
+          <tbody>
+            {projects?.map(p => (
+              <tr>
+                <td>
+                  {p.image_url
+                    ? <img src={p.image_url} alt={p.title} style="width:60px;height:40px;object-fit:cover;border:2px solid var(--border-color)" />
+                    : <span style="color:var(--text-muted)">—</span>
+                  }
+                </td>
+                <td><strong>{p.title}</strong></td>
+                <td>{p.link ? <a href={p.link} target="_blank" style="color:var(--accent)">Buka ↗</a> : '—'}</td>
+                <td><span class={`badge ${p.visible ? 'badge-on' : 'badge-off'}`}>{p.visible ? 'Aktif' : 'Hidden'}</span></td>
+                <td>
+                  <details class="inline-edit">
+                    <summary class="btn btn-outline btn-sm">Edit</summary>
+                    <form method="POST" class="admin-form" style="margin-top:.75rem;padding:1rem;border:2px solid var(--border-color)">
+                      <input type="hidden" name="_action" value="update" />
+                      <input type="hidden" name="id" value={p.id} />
+                      <div class="form-group"><label>Judul</label><input name="title" value={p.title} /></div>
+                      <div class="form-group"><label>Deskripsi</label><textarea name="description">{p.description}</textarea></div>
+                      <div class="form-group"><label>URL Gambar</label><input name="image_url" value={p.image_url || ''} /></div>
+                      <div class="form-group"><label>Link</label><input name="link" value={p.link || ''} /></div>
+                      <div class="form-group"><label>Tags</label><input name="tags" value={p.tags?.join(', ') || ''} /></div>
+                      <div class="form-group">
+                        <label>Visible</label>
+                        <select name="visible">
+                          <option value="true" selected={p.visible}>Ya</option>
+                          <option value="false" selected={!p.visible}>Tidak</option>
+                        </select>
+                      </div>
+                      <div class="form-actions"><button type="submit" class="btn btn-primary btn-sm">Update</button></div>
+                    </form>
+                  </details>
+                  <form method="POST" style="display:inline" onsubmit="return confirm('Hapus project ini?')">
+                    <input type="hidden" name="_action" value="delete" />
+                    <input type="hidden" name="id" value={p.id} />
+                    <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
+                  </form>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+</Layout>
+<style>
+  @import '../../styles/admin.css';
+  .alert { background:var(--accent);color:var(--accent-text);padding:.75rem 1rem;border:2px solid var(--border-color);margin-bottom:1rem;font-weight:700;word-break:break-all; }
+  .form-details summary { cursor:pointer;font-weight:700;padding:.75rem 1rem;background:var(--bg-card);border:2px solid var(--border-color);display:inline-block; }
+  .form-details { margin-bottom:1.5rem; }
+  .inline-edit { display:inline-block; }
+  .inline-edit summary { list-style:none; }
+</style>
+
+<script>
+  const rawInput = document.getElementById('imageRaw') as HTMLInputElement;
+  const imageData = document.getElementById('imageData') as HTMLInputElement;
+  const imageName = document.getElementById('imageName') as HTMLInputElement;
+  const previewWrap = document.getElementById('previewWrap') as HTMLDivElement;
+  const previewImg = document.getElementById('previewImg') as HTMLImageElement;
+  const sizeInfo = document.getElementById('sizeInfo') as HTMLParagraphElement;
+
+  const MAX_WIDTH = 800;
+  const TARGET_KB = 150;
+
+  function compressToTarget(img: HTMLImageElement): string {
+    let w = img.width;
+    let h = img.height;
+    if (w > MAX_WIDTH) {
+      h = Math.round((h * MAX_WIDTH) / w);
+      w = MAX_WIDTH;
+    }
+
+    const canvas = document.createElement('canvas');
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext('2d')!;
+    ctx.drawImage(img, 0, 0, w, h);
+
+    // Binary search quality sampai ≤150KB
+    let lo = 0.1, hi = 0.95, best = '';
+    for (let i = 0; i < 10; i++) {
+      const mid = (lo + hi) / 2;
+      const result = canvas.toDataURL('image/webp', mid);
+      const kb = Math.round((result.length * 3) / 4 / 1024);
+      if (kb <= TARGET_KB) {
+        best = result;
+        lo = mid; // bisa lebih tinggi quality
+      } else {
+        hi = mid; // turunin quality
+      }
+    }
+
+    // Kalau masih belum dapat (gambar sangat sederhana), pakai lo
+    if (!best) best = canvas.toDataURL('image/webp', lo);
+    return best;
+  }
+
+  rawInput?.addEventListener('change', () => {
+    const file = rawInput.files?.[0];
+    if (!file) return;
+
+    sizeInfo.textContent = '⏳ Mengompres...';
+    previewWrap.style.display = 'block';
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const compressed = compressToTarget(img);
+        const kb = Math.round((compressed.length * 3) / 4 / 1024);
+        const w = Math.min(img.width, MAX_WIDTH);
+        const h = img.width > MAX_WIDTH ? Math.round(img.height * MAX_WIDTH / img.width) : img.height;
+
+        imageData.value = compressed;
+        imageName.value = file.name.replace(/\.[^.]+$/, '.webp');
+        previewImg.src = compressed;
+        sizeInfo.textContent = `✓ ${w}×${h}px — ${kb} KB (asli: ${Math.round(file.size / 1024)} KB)`;
+      };
+      img.src = e.target!.result as string;
+    };
+    reader.readAsDataURL(file);
+  });
+</script>

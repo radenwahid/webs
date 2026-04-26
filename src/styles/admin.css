@@ -1,0 +1,132 @@
+.admin-wrap {
+  display: flex;
+  min-height: 100vh;
+  background: var(--bg);
+}
+.admin-sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  background: var(--bg-card);
+  border-right: 3px solid var(--border-color);
+  padding: 1.5rem 0;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+.sidebar-logo {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 1rem;
+  text-transform: uppercase;
+  padding: 0 1.25rem 1.5rem;
+  border-bottom: 2px solid var(--border-color);
+  margin-bottom: 1rem;
+}
+.sidebar-logo span { color: var(--accent); }
+.sidebar-nav { display: flex; flex-direction: column; }
+.sidebar-nav a {
+  padding: .75rem 1.25rem;
+  font-weight: 600;
+  font-size: .85rem;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  border-left: 3px solid transparent;
+  transition: background .15s, border-color .15s, color .15s;
+}
+.sidebar-nav a:hover, .sidebar-nav a.active {
+  background: var(--accent);
+  color: var(--accent-text);
+  border-left-color: var(--border-color);
+}
+.sidebar-nav a.logout { margin-top: auto; color: #ef4444; }
+.sidebar-nav a.logout:hover { background: #ef4444; color: #fff; }
+
+.admin-main {
+  flex: 1;
+  padding: 2rem;
+  overflow-y: auto;
+}
+.admin-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 2rem;
+  font-weight: 800;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 3px solid var(--border-color);
+}
+
+/* Stats */
+.stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2rem; }
+.stat-card {
+  background: var(--bg-card);
+  border: 3px solid var(--border-color);
+  box-shadow: 5px 5px 0 var(--shadow-color);
+  padding: 1.5rem;
+  text-align: center;
+}
+.stat-num { font-family: 'Syne', sans-serif; font-size: 2.5rem; font-weight: 800; color: var(--accent); }
+.stat-label { font-size: .8rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--text-muted); }
+
+.quick-links { display: flex; gap: 1rem; flex-wrap: wrap; }
+
+/* Table */
+.admin-table-wrap { overflow-x: auto; margin-top: 1.5rem; }
+.admin-table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+.admin-table th {
+  background: var(--accent);
+  color: var(--accent-text);
+  padding: .75rem 1rem;
+  text-align: left;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: .75rem;
+  letter-spacing: .08em;
+  border: 2px solid var(--border-color);
+}
+.admin-table td {
+  padding: .75rem 1rem;
+  border: 1px solid var(--border-color);
+  vertical-align: middle;
+}
+.admin-table tr:hover td { background: var(--bg); }
+
+/* Form */
+.admin-form { display: flex; flex-direction: column; gap: 1.25rem; max-width: 640px; }
+.form-group { display: flex; flex-direction: column; gap: .4rem; }
+.form-group label { font-weight: 700; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+.form-group input,
+.form-group textarea,
+.form-group select {
+  padding: .65rem 1rem;
+  background: var(--bg);
+  border: 2px solid var(--border-color);
+  color: var(--text);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: .95rem;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  border-color: var(--accent);
+  box-shadow: 3px 3px 0 var(--shadow-color);
+}
+.form-group textarea { resize: vertical; min-height: 100px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.form-actions { display: flex; gap: 1rem; }
+
+.badge { display:inline-block;padding:.2rem .5rem;font-size:.7rem;font-weight:700;text-transform:uppercase;border:1.5px solid var(--border-color); }
+.badge-on { background:var(--accent);color:var(--accent-text); }
+.badge-off { background:var(--bg);color:var(--text-muted); }
+
+.btn-sm { padding:.4rem .8rem;font-size:.75rem; }
+.btn-danger { background:#ef4444;color:#fff;border-color:#ef4444; }
+.btn-danger:hover { box-shadow:4px 4px 0 #991b1b; }
+
+@media(max-width:768px) {
+  .admin-sidebar { display:none; }
+  .stats-grid { grid-template-columns:1fr; }
+  .form-row { grid-template-columns:1fr; }
+}

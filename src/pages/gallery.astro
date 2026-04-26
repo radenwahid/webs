@@ -1,0 +1,20 @@
+---
+export const prerender = true;
+import Layout from '../layouts/Layout.astro';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+import GalleryGrid from '../components/GalleryGrid';
+import { supabase } from '../lib/supabase';
+
+const { data: projects } = await supabase.from('projects').select('*').eq('visible', true).order('created_at', { ascending: false });
+---
+<Layout
+  title="Galeri Project — Joki Coding by Raden"
+  description="Portfolio dan galeri project Joki Coding by Raden: web development, mobile app, skripsi, dan lebih."
+>
+  <Navbar />
+  <main style="padding-top: 5rem;">
+    <GalleryGrid client:visible projects={projects || []} />
+  </main>
+  <Footer />
+</Layout>
