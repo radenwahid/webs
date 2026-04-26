@@ -6,5 +6,8 @@ const serviceKey = import.meta.env.SUPABASE_SERVICE_KEY;
 
 export const supabase = createClient(url, key);
 
-// Service role client untuk admin operations (server-side only)
-export const supabaseAdmin = createClient(url, serviceKey || key);
+// Admin client — pakai service key kalau ada, fallback ke anon key
+// Kalau pakai anon key, RLS harus allow semua reads
+export const supabaseAdmin = serviceKey
+  ? createClient(url, serviceKey, { auth: { persistSession: false } })
+  : createClient(url, key);
