@@ -195,6 +195,36 @@
     }, 50);
   }
   setTimeout(navScramble, 1200);
+
+  // ── Smooth scroll & URL Hash cleanup ──
+  document.querySelectorAll('a[href^="/#"], a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+      const href = this.getAttribute('href') || '';
+      const targetId = href.replace(/^\/?#/, '');
+      if (!targetId) return;
+      
+      const targetElement = document.getElementById(targetId);
+      if (targetElement) {
+        e.preventDefault();
+        
+        const navHeight = document.getElementById('navbar')?.offsetHeight || 0;
+        const targetPosition = targetElement.getBoundingClientRect().top + window.scrollY - navHeight;
+        
+        window.scrollTo({
+          top: targetPosition,
+          behavior: 'smooth'
+        });
+        
+        history.replaceState(null, '', window.location.pathname);
+      }
+    });
+  });
+
+  if (window.location.hash) {
+    setTimeout(() => {
+      history.replaceState(null, '', window.location.pathname);
+    }, 100);
+  }
 </script>
 
 <style>
