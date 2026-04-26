@@ -9,6 +9,15 @@ interface Service {
   desc_id: string; desc_en: string;
 }
 
+const BRUTAL_COLORS = [
+  { bg: '#0057FF', color: '#FFEE00' },
+  { bg: '#0A0A0A', color: '#FFEE00' },
+  { bg: '#FF6B00', color: '#0A0A0A' },
+  { bg: '#00C853', color: '#0A0A0A' },
+  { bg: '#D500F9', color: '#FFEE00' },
+  { bg: '#FF1744', color: '#FFEE00' },
+];
+
 const PER_PAGE = 6;
 
 export default function ServicesSection({ services }: { services: Service[] }) {
@@ -17,18 +26,23 @@ export default function ServicesSection({ services }: { services: Service[] }) {
   const [mobileIdx, setMobileIdx] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
   const [paused, setPaused] = useState(false);
+  const [theme, setTheme] = useState('dark');
   const dragStart = useRef(0);
 
   useEffect(() => {
     const saved = (localStorage.getItem('lang') || 'id') as Lang;
     setLang(saved);
+    setTheme(document.documentElement.getAttribute('data-theme') || 'dark');
     const handler = () => setLang((localStorage.getItem('lang') || 'id') as Lang);
     window.addEventListener('langchange', handler);
+    // Watch theme changes
+    const obs = new MutationObserver(() => setTheme(document.documentElement.getAttribute('data-theme') || 'dark'));
+    obs.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
     const mq = window.matchMedia('(max-width: 768px)');
     setIsMobile(mq.matches);
     const mqH = (e: MediaQueryListEvent) => setIsMobile(e.matches);
     mq.addEventListener('change', mqH);
-    return () => { window.removeEventListener('langchange', handler); mq.removeEventListener('change', mqH); };
+    return () => { window.removeEventListener('langchange', handler); mq.removeEventListener('change', mqH); obs.disconnect(); };
   }, []);
 
   const mobilePairs: Service[][] = [];
@@ -42,6 +56,12 @@ export default function ServicesSection({ services }: { services: Service[] }) {
     const t = setInterval(next, 3500);
     return () => clearInterval(t);
   }, [isMobile, mobilePairs.length, paused, next]);
+
+  const getBrutalStyle = (idx: number) => {
+    if (theme !== 'brutal') return {};
+    const c = BRUTAL_COLORS[idx % BRUTAL_COLORS.length];
+    return { backgroundColor: c.bg, color: c.color };
+  };
 
   const tr = translations[lang];
   const totalPages = Math.ceil(services.length / PER_PAGE);
@@ -69,10 +89,11 @@ export default function ServicesSection({ services }: { services: Service[] }) {
                 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.3 }}>
                 {paged.map((s, i) => (
                   <motion.div key={s.id} className="brutalist-card service-card"
+                    style={getBrutalStyle(page * PER_PAGE + i)}
                     initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07 }}>
                     <div className="service-icon">{s.icon}</div>
                     <h3 className="service-title">{lang === 'id' ? s.title_id : s.title_en}</h3>
-                    <p className="service-desc">{lang === 'id' ? s.desc_id : s.desc_en}</p>
+                    <p className="service-desc" style={theme === 'brutal' ? { color: 'inherit', opacity: 0.85 } : {}}>{lang === 'id' ? s.desc_id : s.desc_en}</p>
                   </motion.div>
                 ))}
               </motion.div>
@@ -96,11 +117,12 @@ export default function ServicesSection({ services }: { services: Service[] }) {
                 onDragEnd={handleDragEnd}
                 initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -40 }}
                 transition={{ duration: 0.3 }} style={{ cursor: 'grab' }}>
-                {mobilePairs[mobileIdx]?.map(s => (
-                  <div key={s.id} className="brutalist-card service-card">
+                {mobilePairs[mobileIdx]?.map((s, pairI) => (
+                  <div key={s.id} className="brutalist-card service-card"
+                    style={getBrutalStyle(mobileIdx * 2 + pairI)}>
                     <div className="service-icon">{s.icon}</div>
                     <h3 className="service-title">{lang === 'id' ? s.title_id : s.title_en}</h3>
-                    <p className="service-desc">{lang === 'id' ? s.desc_id : s.desc_en}</p>
+                    <p className="service-desc" style={theme === 'brutal' ? { color: 'inherit', opacity: 0.85 } : {}}>{lang === 'id' ? s.desc_id : s.desc_en}</p>
                   </div>
                 ))}
               </motion.div>

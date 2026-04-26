@@ -8,6 +8,15 @@ interface Testimonial {
   text: string; stars: number; tag: string;
 }
 
+const BRUTAL_COLORS = [
+  { bg: '#0057FF', color: '#FFEE00' },
+  { bg: '#0A0A0A', color: '#FFEE00' },
+  { bg: '#FF6B00', color: '#0A0A0A' },
+  { bg: '#00C853', color: '#0A0A0A' },
+  { bg: '#D500F9', color: '#FFEE00' },
+  { bg: '#FF1744', color: '#FFEE00' },
+];
+
 const PER_PAGE = 6;
 
 export default function TestimonialsSection({ testimonials }: { testimonials: Testimonial[] }) {
@@ -16,17 +25,21 @@ export default function TestimonialsSection({ testimonials }: { testimonials: Te
   const [mobileIdx, setMobileIdx] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
   const [paused, setPaused] = useState(false);
+  const [theme, setTheme] = useState('dark');
 
   useEffect(() => {
     const saved = (localStorage.getItem('lang') || 'id') as Lang;
     setLang(saved);
+    setTheme(document.documentElement.getAttribute('data-theme') || 'dark');
     const handler = () => setLang((localStorage.getItem('lang') || 'id') as Lang);
     window.addEventListener('langchange', handler);
+    const obs = new MutationObserver(() => setTheme(document.documentElement.getAttribute('data-theme') || 'dark'));
+    obs.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
     const mq = window.matchMedia('(max-width: 768px)');
     setIsMobile(mq.matches);
     const mqH = (e: MediaQueryListEvent) => setIsMobile(e.matches);
     mq.addEventListener('change', mqH);
-    return () => { window.removeEventListener('langchange', handler); mq.removeEventListener('change', mqH); };
+    return () => { window.removeEventListener('langchange', handler); mq.removeEventListener('change', mqH); obs.disconnect(); };
   }, []);
 
   const mobilePairs: Testimonial[][] = [];
@@ -51,22 +64,32 @@ export default function TestimonialsSection({ testimonials }: { testimonials: Te
     setPaused(false);
   };
 
-  const Card = ({ t }: { t: Testimonial }) => (
-    <div className="brutalist-card testi-card">
-      <div className="testi-top">
-        <span className="testi-tag">{t.tag}</span>
-        <span className="testi-stars">{"★".repeat(t.stars)}</span>
-      </div>
-      <p className="testi-text">"{t.text}"</p>
-      <div className="testi-author">
-        <div className="testi-avatar">{t.name[0]}</div>
-        <div>
-          <div className="testi-name">{t.name}</div>
-          <div className="testi-role">{t.role}</div>
+  const getBrutalStyle = (idx: number) => {
+    if (theme !== 'brutal') return {};
+    const c = BRUTAL_COLORS[idx % BRUTAL_COLORS.length];
+    return { backgroundColor: c.bg, color: c.color };
+  };
+
+  const Card = ({ t, idx }: { t: Testimonial; idx: number }) => {
+    const bs = getBrutalStyle(idx);
+    const isBrutal = theme === 'brutal';
+    return (
+      <div className="brutalist-card testi-card" style={bs}>
+        <div className="testi-top">
+          <span className="testi-tag" style={isBrutal ? { background:'rgba(0,0,0,0.25)', color:'inherit', borderColor:'currentColor' } : {}}>{t.tag}</span>
+          <span className="testi-stars" style={isBrutal ? { color:'inherit' } : {}}>{"★".repeat(t.stars)}</span>
+        </div>
+        <p className="testi-text" style={isBrutal ? { color:'inherit', opacity:0.9 } : {}}>"{t.text}"</p>
+        <div className="testi-author">
+          <div className="testi-avatar" style={isBrutal ? { background:'rgba(0,0,0,0.2)', color:'inherit', borderColor:'currentColor' } : {}}>{t.name[0]}</div>
+          <div>
+            <div className="testi-name" style={isBrutal ? { color:'inherit' } : {}}>{t.name}</div>
+            <div className="testi-role" style={isBrutal ? { color:'inherit', opacity:0.75 } : {}}>{t.role}</div>
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <section className="section" id="testimonials">
@@ -85,7 +108,7 @@ export default function TestimonialsSection({ testimonials }: { testimonials: Te
                 {paged.map((t, i) => (
                   <motion.div key={t.id} initial={{ opacity: 0, y: 40, rotate: i % 2 === 0 ? -1 : 1 }}
                     animate={{ opacity: 1, y: 0, rotate: i % 2 === 0 ? -1 : 1 }} transition={{ delay: i * 0.08 }}>
-                    <Card t={t} />
+                    <Card t={t} idx={page * PER_PAGE + i} />
                   </motion.div>
                 ))}
               </motion.div>
@@ -109,7 +132,7 @@ export default function TestimonialsSection({ testimonials }: { testimonials: Te
                 onDragEnd={handleDragEnd}
                 initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -40 }}
                 transition={{ duration: 0.3 }} style={{ cursor: 'grab' }}>
-                {mobilePairs[mobileIdx]?.map(t => <Card key={t.id} t={t} />)}
+                {mobilePairs[mobileIdx]?.map((t, pairI) => <Card key={t.id} t={t} idx={mobileIdx * 2 + pairI} />)}
               </motion.div>
             </AnimatePresence>
             <div className="pagination">
