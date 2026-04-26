@@ -3,14 +3,90 @@ interface Props { active: string; }
 const { active } = Astro.props;
 ---
 <aside class="admin-sidebar">
-  <div class="sidebar-logo">ADMIN<span>PANEL</span></div>
+  <a href="/admin" class="sidebar-logo">ADMIN<span>PANEL</span></a>
   <nav class="sidebar-nav">
     <a href="/admin" class={active === 'dashboard' ? 'active' : ''}>Dashboard</a>
     <a href="/admin/services" class={active === 'services' ? 'active' : ''}>Services</a>
     <a href="/admin/testimonials" class={active === 'testimonials' ? 'active' : ''}>Testimoni</a>
     <a href="/admin/projects" class={active === 'projects' ? 'active' : ''}>Galeri</a>
     <a href="/admin/settings" class={active === 'settings' ? 'active' : ''}>Settings</a>
-    <a href="/" target="_blank">Lihat Site</a>
-    <a href="/admin/logout" class="logout">Logout</a>
+    <a href="/" target="_blank" class="sidebar-external">Lihat Site</a>
+    <a href="/admin/logout" class="sidebar-logout">Logout</a>
   </nav>
+  <div class="sidebar-bottom">
+    <!-- Theme dropdown -->
+    <div class="sb-theme-wrap">
+      <button class="sb-theme-btn" id="sbThemeBtn">
+        <span class="sb-dot" id="sbDot"></span>
+        <span id="sbLabel">Dark</span>
+        <span class="sb-arrow" id="sbArrow">▾</span>
+      </button>
+      <ul class="sb-theme-menu" id="sbMenu">
+        <li data-t="dark"><span class="sb-swatch" style="background:#7C3AED"></span>Dark</li>
+        <li data-t="light"><span class="sb-swatch" style="background:#6B21A8"></span>Light</li>
+        <li data-t="brutal"><span class="sb-swatch" style="background:#FFEE00;border-color:#000"></span>Brutal</li>
+        <li data-t="cyber"><span class="sb-swatch" style="background:#00FF41"></span>Cyber</li>
+      </ul>
+    </div>
+    <!-- Lang toggle -->
+    <button class="sb-lang-btn" id="sbLang">ID</button>
+  </div>
 </aside>
+
+<script>
+  const html = document.documentElement;
+  const themes: Record<string, {label:string;color:string}> = {
+    dark:{label:'Dark',color:'#7C3AED'},
+    light:{label:'Light',color:'#6B21A8'},
+    brutal:{label:'Brutal',color:'#FFEE00'},
+    cyber:{label:'Cyber',color:'#00FF41'},
+  };
+
+  function applyTheme(t: string) {
+    html.setAttribute('data-theme', t);
+    localStorage.setItem('theme', t);
+    const dot = document.getElementById('sbDot');
+    const label = document.getElementById('sbLabel');
+    if (dot) dot.style.background = themes[t]?.color ?? '#fff';
+    if (label) label.textContent = themes[t]?.label ?? t;
+    document.querySelectorAll('#sbMenu li').forEach(li =>
+      li.classList.toggle('active', (li as HTMLElement).dataset.t === t)
+    );
+  }
+  applyTheme(localStorage.getItem('theme') || 'dark');
+
+  const btn = document.getElementById('sbThemeBtn');
+  const menu = document.getElementById('sbMenu');
+  const arrow = document.getElementById('sbArrow');
+  let open = false;
+
+  btn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    open = !open;
+    menu!.style.display = open ? 'flex' : 'none';
+    if (arrow) arrow.style.transform = open ? 'rotate(180deg)' : 'rotate(0)';
+  });
+  document.querySelectorAll('#sbMenu li').forEach(li => {
+    li.addEventListener('click', () => {
+      applyTheme((li as HTMLElement).dataset.t!);
+      open = false;
+      menu!.style.display = 'none';
+      if (arrow) arrow.style.transform = 'rotate(0)';
+    });
+  });
+  document.addEventListener('click', () => {
+    if (open) { open = false; menu!.style.display = 'none'; if (arrow) arrow.style.transform = 'rotate(0)'; }
+  });
+
+  // Lang
+  const langBtn = document.getElementById('sbLang');
+  let lang = localStorage.getItem('lang') || 'id';
+  langBtn!.textContent = lang.toUpperCase();
+  langBtn?.addEventListener('click', () => {
+    lang = lang === 'id' ? 'en' : 'id';
+    localStorage.setItem('lang', lang);
+    langBtn.textContent = lang.toUpperCase();
+    html.setAttribute('lang', lang);
+    window.dispatchEvent(new Event('langchange'));
+  });
+</script>

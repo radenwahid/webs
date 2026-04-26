@@ -3,55 +3,136 @@
   min-height: 100vh;
   background: var(--bg);
 }
+
+/* ── SIDEBAR ── */
 .admin-sidebar {
   width: 200px;
   flex-shrink: 0;
   background: var(--bg-card);
   border-right: 3px solid var(--border-color);
-  padding: 1.5rem 0;
+  display: flex;
+  flex-direction: column;
   position: sticky;
   top: 0;
   height: 100vh;
   overflow-y: auto;
-  display: flex;
-  flex-direction: column;
 }
 .sidebar-logo {
+  display: block;
   font-family: 'Syne', sans-serif;
   font-weight: 800;
   font-size: 1rem;
   text-transform: uppercase;
-  padding: 0 1.25rem 1rem;
+  padding: 1.25rem 1.25rem 1rem;
   border-bottom: 2px solid var(--border-color);
-  margin-bottom: .5rem;
-  white-space: nowrap;
+  letter-spacing: .02em;
 }
 .sidebar-logo span { color: var(--accent); }
 .sidebar-nav {
   display: flex;
   flex-direction: column;
   flex: 1;
+  padding-top: .5rem;
 }
 .sidebar-nav a {
   display: block;
   padding: .75rem 1.25rem;
   font-weight: 600;
-  font-size: .85rem;
+  font-size: .82rem;
   text-transform: uppercase;
-  letter-spacing: .04em;
+  letter-spacing: .06em;
   border-left: 3px solid transparent;
-  transition: background .15s, border-color .15s, color .15s;
-  white-space: nowrap;
+  transition: background .15s, color .15s, border-color .15s;
+  color: var(--text);
 }
-.sidebar-nav a:hover, .sidebar-nav a.active {
+.sidebar-nav a:hover {
+  background: rgba(124,58,237,.12);
+  color: var(--accent);
+  border-left-color: var(--accent);
+}
+.sidebar-nav a.active {
   background: var(--accent);
   color: var(--accent-text);
   border-left-color: var(--border-color);
 }
-.sidebar-nav a.logout { color: #ef4444; margin-top: auto; }
-.sidebar-nav a.logout:hover { background: #ef4444; color: #fff; border-left-color: #ef4444; }
+.sidebar-external { color: var(--text-muted) !important; font-size: .78rem !important; }
+.sidebar-logout {
+  color: #ef4444 !important;
+  margin-top: .5rem;
+}
+.sidebar-logout:hover { background: #ef4444 !important; color: #fff !important; border-left-color: #ef4444 !important; }
 
-/* Theme switcher moved to AdminTopbar */
+/* Sidebar bottom — theme + lang */
+.sidebar-bottom {
+  padding: 1rem 1.25rem;
+  border-top: 2px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  gap: .6rem;
+}
+.sb-theme-wrap { position: relative; }
+.sb-theme-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .45rem .75rem;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: .75rem;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  background: none;
+  border: 2px solid var(--border-color);
+  color: var(--text);
+  cursor: pointer;
+  transition: background .15s;
+}
+.sb-theme-btn:hover { background: rgba(124,58,237,.1); }
+.sb-dot { width:9px;height:9px;border-radius:50%;border:1.5px solid var(--border-color);flex-shrink:0; }
+.sb-arrow { font-size:.65rem;margin-left:auto;transition:transform .2s; }
+.sb-theme-menu {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: 0; right: 0;
+  flex-direction: column;
+  background: var(--bg);
+  border: 2px solid var(--border-color);
+  box-shadow: 4px 4px 0 var(--shadow-color);
+  z-index: 300;
+}
+.sb-theme-menu li {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .55rem .75rem;
+  font-size: .78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border-color);
+  transition: background .15s, color .15s;
+}
+.sb-theme-menu li:last-child { border-bottom: none; }
+.sb-theme-menu li:hover, .sb-theme-menu li.active { background: var(--accent); color: var(--accent-text); }
+.sb-swatch { width:9px;height:9px;border-radius:50%;border:1.5px solid var(--border-color);flex-shrink:0; }
+.sb-lang-btn {
+  width: 100%;
+  padding: .45rem;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 800;
+  font-size: .75rem;
+  letter-spacing: .1em;
+  background: none;
+  border: 2px solid var(--border-color);
+  color: var(--text);
+  cursor: pointer;
+  transition: background .15s, color .15s;
+  text-align: center;
+}
+.sb-lang-btn:hover { background: var(--accent); color: var(--accent-text); }
 
 .admin-main {
   flex: 1;

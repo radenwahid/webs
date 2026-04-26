@@ -2,7 +2,6 @@
 export const prerender = false;
 import Layout from '../../layouts/Layout.astro';
 import AdminSidebar from '../../components/AdminSidebar.astro';
-import AdminTopbar from '../../components/AdminTopbar.astro';
 import { requireAuth } from '../../lib/auth';
 import { supabaseAdmin } from '../../lib/supabase';
 
@@ -60,7 +59,7 @@ const { data: projects } = await supabaseAdmin.from('projects').select('*').orde
 <div class="admin-wrap">
   <AdminSidebar active="projects" />
   <main class="admin-main">
-    <AdminTopbar title="Galeri Project" /><div style="margin-bottom:1.5rem"><button class="btn btn-primary" id="btnAdd">+ Tambah Project</button></div>
+    <h1 class="admin-title">Galeri Project</h1><div style="margin-bottom:1.5rem"><button class="btn btn-primary" id="btnAdd">+ Tambah Project</button></div>
     {message && <div class={`alert ${isError ? 'alert-error' : 'alert-success'}`}>{message}</div>}
     <div class="admin-table-wrap">
       <table class="admin-table">
