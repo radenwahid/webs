@@ -1,6 +1,7 @@
 ---
 export const prerender = false;
 import Layout from '../../layouts/Layout.astro';
+import AdminSidebar from '../../components/AdminSidebar.astro';
 import { requireAuth } from '../../lib/auth';
 import { supabaseAdmin } from '../../lib/supabase';
 
@@ -15,17 +16,7 @@ const [{ data: services }, { data: testimonials }, { data: projects }] = await P
 ---
 <Layout title="Admin Dashboard — Joki Coding">
   <div class="admin-wrap">
-    <aside class="admin-sidebar">
-      <div class="sidebar-logo">ADMIN<span>PANEL</span></div>
-      <nav class="sidebar-nav">
-        <a href="/admin" class="active">📊 Dashboard</a>
-        <a href="/admin/services">⚙️ Services</a>
-        <a href="/admin/testimonials">💬 Testimoni</a>
-        <a href="/admin/projects">🖼️ Galeri</a>
-        <a href="/" target="_blank">🌐 Lihat Site</a>
-        <a href="/admin/logout" class="logout">🚪 Logout</a>
-      </nav>
-    </aside>
+    <AdminSidebar active="dashboard" />
 
     <main class="admin-main">
       <h1 class="admin-title">Dashboard</h1>

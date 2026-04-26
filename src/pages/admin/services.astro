@@ -1,140 +1,141 @@
 ---
 export const prerender = false;
 import Layout from '../../layouts/Layout.astro';
+import AdminSidebar from '../../components/AdminSidebar.astro';
 import { requireAuth } from '../../lib/auth';
 import { supabaseAdmin } from '../../lib/supabase';
 
 const authCheck = requireAuth(Astro.request);
 if (authCheck) return authCheck;
 
-let message = '';
+let message = ''; let isError = false;
 
 if (Astro.request.method === 'POST') {
   const form = await Astro.request.formData();
-  const action = form.get('_action');
-
-  if (action === 'create' || action === 'update') {
-    const data = {
-      icon: form.get('icon'),
-      title_id: form.get('title_id'),
-      title_en: form.get('title_en'),
-      desc_id: form.get('desc_id'),
-      desc_en: form.get('desc_en'),
-      sort_order: Number(form.get('sort_order') || 0),
-      visible: form.get('visible') === 'true',
-    };
-    if (action === 'create') {
-      const { error } = await supabaseAdmin.from('services').insert(data);
-      message = error ? `❌ Error: ${error.message}` : '✓ Service berhasil ditambahkan!';
-    } else {
-      const { error } = await supabaseAdmin.from('services').update(data).eq('id', form.get('id'));
-      message = error ? `❌ Error: ${error.message}` : '✓ Service berhasil diupdate!';
-    }
+  const action = form.get('_action') as string;
+  const data = {
+    icon: form.get('icon'), title_id: form.get('title_id'), title_en: form.get('title_en'),
+    desc_id: form.get('desc_id'), desc_en: form.get('desc_en'),
+    sort_order: Number(form.get('sort_order') || 0), visible: form.get('visible') === 'true',
+  };
+  if (action === 'create') {
+    const { error } = await supabaseAdmin.from('services').insert(data);
+    isError = !!error; message = error ? `❌ ${error.message}` : '✓ Service ditambahkan!';
+  } else if (action === 'update') {
+    const { error } = await supabaseAdmin.from('services').update(data).eq('id', form.get('id'));
+    isError = !!error; message = error ? `❌ ${error.message}` : '✓ Service diupdate!';
   } else if (action === 'delete') {
     const { error } = await supabaseAdmin.from('services').delete().eq('id', form.get('id'));
-    message = error ? `❌ Error: ${error.message}` : '✓ Service dihapus.';
+    isError = !!error; message = error ? `❌ ${error.message}` : '✓ Service dihapus.';
   }
 }
 
 const { data: services } = await supabaseAdmin.from('services').select('*').order('sort_order');
 ---
 <Layout title="Services — Admin">
-  <div class="admin-wrap">
-    <aside class="admin-sidebar">
-      <div class="sidebar-logo">ADMIN<span>PANEL</span></div>
-      <nav class="sidebar-nav">
-        <a href="/admin">📊 Dashboard</a>
-        <a href="/admin/services" class="active">⚙️ Services</a>
-        <a href="/admin/testimonials">💬 Testimoni</a>
-        <a href="/admin/projects">🖼️ Galeri</a>
-        <a href="/" target="_blank">🌐 Lihat Site</a>
-        <a href="/admin/logout" class="logout">🚪 Logout</a>
-      </nav>
-    </aside>
-    <main class="admin-main">
-      <h1 class="admin-title">Services</h1>
-      {message && <div class="alert">{message}</div>}
+<div class="admin-wrap">
+  <AdminSidebar active="services" />
+  <main class="admin-main">
+    <div class="admin-toolbar">
+      <h1 class="admin-title" style="margin:0;border:none;padding:0">Services</h1>
+      <button class="btn btn-primary" onclick="openModal('create')">+ Tambah Service</button>
+    </div>
+    {message && <div class={`alert ${isError ? 'alert-error' : 'alert-success'}`}>{message}</div>}
 
-      <!-- Add Form -->
-      <details class="form-details">
-        <summary>+ Tambah Service Baru</summary>
-        <form method="POST" class="admin-form" style="margin-top:1rem">
-          <input type="hidden" name="_action" value="create" />
-          <div class="form-row">
-            <div class="form-group"><label>Icon (emoji)</label><input name="icon" value="🔧" required /></div>
-            <div class="form-group"><label>Sort Order</label><input name="sort_order" type="number" value="0" /></div>
-          </div>
-          <div class="form-row">
-            <div class="form-group"><label>Judul (ID)</label><input name="title_id" required /></div>
-            <div class="form-group"><label>Title (EN)</label><input name="title_en" required /></div>
-          </div>
-          <div class="form-group"><label>Deskripsi (ID)</label><textarea name="desc_id" required></textarea></div>
-          <div class="form-group"><label>Description (EN)</label><textarea name="desc_en" required></textarea></div>
-          <div class="form-group">
-            <label>Visible</label>
-            <select name="visible"><option value="true">Ya</option><option value="false">Tidak</option></select>
-          </div>
-          <div class="form-actions"><button type="submit" class="btn btn-primary">Simpan</button></div>
-        </form>
-      </details>
+    <div class="admin-table-wrap">
+      <table class="admin-table">
+        <thead><tr><th>Icon</th><th>Judul</th><th>Status</th><th>Aksi</th></tr></thead>
+        <tbody>
+          {services?.map(s => (
+            <tr>
+              <td style="font-size:1.5rem">{s.icon}</td>
+              <td><strong>{s.title_id}</strong><br/><small style="color:var(--text-muted)">{s.title_en}</small></td>
+              <td><span class={`badge ${s.visible ? 'badge-on' : 'badge-off'}`}>{s.visible ? 'Aktif' : 'Hidden'}</span></td>
+              <td style="display:flex;gap:.5rem;flex-wrap:wrap">
+                <button class="btn btn-outline btn-sm" onclick={`openModal('edit', ${JSON.stringify(s)})`}>Edit</button>
+                <form method="POST" style="display:inline" onsubmit="return confirm('Hapus?')">
+                  <input type="hidden" name="_action" value="delete" />
+                  <input type="hidden" name="id" value={s.id} />
+                  <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
+                </form>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
 
-      <!-- Table -->
-      <div class="admin-table-wrap">
-        <table class="admin-table">
-          <thead><tr><th>Icon</th><th>Judul</th><th>Status</th><th>Aksi</th></tr></thead>
-          <tbody>
-            {services?.map(s => (
-              <tr>
-                <td>{s.icon}</td>
-                <td><strong>{s.title_id}</strong><br/><small style="color:var(--text-muted)">{s.title_en}</small></td>
-                <td><span class={`badge ${s.visible ? 'badge-on' : 'badge-off'}`}>{s.visible ? 'Aktif' : 'Hidden'}</span></td>
-                <td>
-                  <details class="inline-edit">
-                    <summary class="btn btn-outline btn-sm">Edit</summary>
-                    <form method="POST" class="admin-form" style="margin-top:.75rem;padding:1rem;border:2px solid var(--border-color)">
-                      <input type="hidden" name="_action" value="update" />
-                      <input type="hidden" name="id" value={s.id} />
-                      <div class="form-row">
-                        <div class="form-group"><label>Icon</label><input name="icon" value={s.icon} /></div>
-                        <div class="form-group"><label>Sort</label><input name="sort_order" type="number" value={s.sort_order} /></div>
-                      </div>
-                      <div class="form-row">
-                        <div class="form-group"><label>Judul ID</label><input name="title_id" value={s.title_id} /></div>
-                        <div class="form-group"><label>Title EN</label><input name="title_en" value={s.title_en} /></div>
-                      </div>
-                      <div class="form-group"><label>Desc ID</label><textarea name="desc_id">{s.desc_id}</textarea></div>
-                      <div class="form-group"><label>Desc EN</label><textarea name="desc_en">{s.desc_en}</textarea></div>
-                      <div class="form-group">
-                        <label>Visible</label>
-                        <select name="visible">
-                          <option value="true" selected={s.visible}>Ya</option>
-                          <option value="false" selected={!s.visible}>Tidak</option>
-                        </select>
-                      </div>
-                      <div class="form-actions">
-                        <button type="submit" class="btn btn-primary btn-sm">Update</button>
-                      </div>
-                    </form>
-                  </details>
-                  <form method="POST" style="display:inline" onsubmit="return confirm('Hapus service ini?')">
-                    <input type="hidden" name="_action" value="delete" />
-                    <input type="hidden" name="id" value={s.id} />
-                    <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
-                  </form>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </main>
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modalTitle">Tambah Service</span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <form method="POST" class="admin-form" id="serviceForm">
+        <input type="hidden" name="_action" id="formAction" value="create" />
+        <input type="hidden" name="id" id="formId" />
+        <div class="form-row">
+          <div class="form-group"><label>Icon (emoji)</label><input name="icon" id="fIcon" value="🔧" required /></div>
+          <div class="form-group"><label>Sort Order</label><input name="sort_order" id="fSort" type="number" value="0" /></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Judul (ID)</label><input name="title_id" id="fTitleId" required /></div>
+          <div class="form-group"><label>Title (EN)</label><input name="title_en" id="fTitleEn" required /></div>
+        </div>
+        <div class="form-group"><label>Deskripsi (ID)</label><textarea name="desc_id" id="fDescId" required></textarea></div>
+        <div class="form-group"><label>Description (EN)</label><textarea name="desc_en" id="fDescEn" required></textarea></div>
+        <div class="form-group">
+          <label>Visible</label>
+          <select name="visible" id="fVisible"><option value="true">Ya</option><option value="false">Tidak</option></select>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Simpan</button>
+          <button type="button" class="btn btn-outline" onclick="closeModal()">Batal</button>
+        </div>
+      </form>
+    </div>
   </div>
+</div>
 </Layout>
-<style>
-  @import '../../styles/admin.css';
-  .alert { background:var(--accent);color:var(--accent-text);padding:.75rem 1rem;border:2px solid var(--border-color);margin-bottom:1rem;font-weight:700; }
-  .form-details summary { cursor:pointer;font-weight:700;padding:.75rem 1rem;background:var(--bg-card);border:2px solid var(--border-color);display:inline-block; }
-  .form-details { margin-bottom:1.5rem; }
-  .inline-edit { display:inline-block; }
-  .inline-edit summary { list-style:none; }
-</style>
+
+<script>
+  function openModal(mode: string, data?: any) {
+    const overlay = document.getElementById('modalOverlay')!;
+    const title = document.getElementById('modalTitle')!;
+    const action = document.getElementById('formAction') as HTMLInputElement;
+    const id = document.getElementById('formId') as HTMLInputElement;
+    if (mode === 'create') {
+      title.textContent = 'Tambah Service';
+      action.value = 'create'; id.value = '';
+      (document.getElementById('fIcon') as HTMLInputElement).value = '🔧';
+      (document.getElementById('fSort') as HTMLInputElement).value = '0';
+      (document.getElementById('fTitleId') as HTMLInputElement).value = '';
+      (document.getElementById('fTitleEn') as HTMLInputElement).value = '';
+      (document.getElementById('fDescId') as HTMLTextAreaElement).value = '';
+      (document.getElementById('fDescEn') as HTMLTextAreaElement).value = '';
+      (document.getElementById('fVisible') as HTMLSelectElement).value = 'true';
+    } else {
+      title.textContent = 'Edit Service';
+      action.value = 'update'; id.value = data.id;
+      (document.getElementById('fIcon') as HTMLInputElement).value = data.icon || '';
+      (document.getElementById('fSort') as HTMLInputElement).value = data.sort_order || 0;
+      (document.getElementById('fTitleId') as HTMLInputElement).value = data.title_id || '';
+      (document.getElementById('fTitleEn') as HTMLInputElement).value = data.title_en || '';
+      (document.getElementById('fDescId') as HTMLTextAreaElement).value = data.desc_id || '';
+      (document.getElementById('fDescEn') as HTMLTextAreaElement).value = data.desc_en || '';
+      (document.getElementById('fVisible') as HTMLSelectElement).value = data.visible ? 'true' : 'false';
+    }
+    overlay.classList.add('open');
+  }
+  function closeModal() { document.getElementById('modalOverlay')!.classList.remove('open'); }
+  function closeModalOutside(e: MouseEvent) { if (e.target === document.getElementById('modalOverlay')) closeModal(); }
+  (window as any).openModal = openModal;
+  (window as any).closeModal = closeModal;
+  (window as any).closeModalOutside = closeModalOutside;
+</script>
+
+<style>@import '../../styles/admin.css';</style>

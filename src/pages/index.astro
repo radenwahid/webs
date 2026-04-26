@@ -9,8 +9,12 @@ import Contact from '../components/Contact.astro';
 import Footer from '../components/Footer.astro';
 import { supabase } from '../lib/supabase';
 
-const { data: services } = await supabase.from('services').select('*').eq('visible', true).order('sort_order');
-const { data: testimonials } = await supabase.from('testimonials').select('*').eq('visible', true).order('created_at');
+const { data: services } = supabase 
+  ? await supabase.from('services').select('*').eq('visible', true).order('sort_order')
+  : { data: [] };
+const { data: testimonials } = supabase
+  ? await supabase.from('testimonials').select('*').eq('visible', true).order('created_at')
+  : { data: [] };
 
 const fallbackServices = services?.length ? services : [];
 const fallbackTestimonials = testimonials?.length ? testimonials : [];
