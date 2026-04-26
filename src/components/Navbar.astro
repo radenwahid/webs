@@ -167,6 +167,22 @@
     else nav?.classList.remove('scrolled');
   });
 
+  // ── Smooth scroll tanpa # di URL ──
+  document.querySelectorAll('a[href^="/#"]').forEach(link => {
+    link.addEventListener('click', (e) => {
+      const href = (link as HTMLAnchorElement).getAttribute('href')!;
+      const id = href.replace('/#', '');
+      const target = document.getElementById(id);
+      if (target) {
+        e.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth' });
+        // Hapus hash dari URL tanpa reload
+        history.replaceState(null, '', window.location.pathname);
+      }
+      // Kalau target tidak ada (beda halaman), biarkan navigate normal
+    });
+  });
+
   // ── Lang toggle ──
   const langBtn = document.getElementById('langBtn');
   let currentLang = localStorage.getItem('lang') || 'id';

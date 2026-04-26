@@ -4,7 +4,7 @@ import Layout from '../layouts/Layout.astro';
 import Navbar from '../components/Navbar.astro';
 import Footer from '../components/Footer.astro';
 import GalleryGrid from '../components/GalleryGrid';
-import { supabase } from '../lib/supabase';
+import { supabase } from '../db/supabase';
 
 const { data: projects } = await supabase.from('projects').select('*').eq('visible', true).order('created_at', { ascending: false });
 ---

@@ -7,7 +7,7 @@ import ServicesSection from '../components/ServicesSection';
 import TestimonialsSection from '../components/TestimonialsSection';
 import Contact from '../components/Contact.astro';
 import Footer from '../components/Footer.astro';
-import { supabase } from '../lib/supabase';
+import { supabase } from '../db/supabase';
 
 const { data: services } = await supabase.from('services').select('*').eq('visible', true).order('sort_order');
 const { data: testimonials } = await supabase.from('testimonials').select('*').eq('visible', true).order('created_at');
