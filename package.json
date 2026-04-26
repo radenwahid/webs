@@ -2,13 +2,15 @@
   "name": "joki-coding",
   "type": "module",
   "version": "1.0.0",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview"
   },
   "dependencies": {
-    "@astrojs/node": "^8.3.4",
     "@astrojs/react": "^3.6.0",
     "@astrojs/vercel": "^7.8.1",
     "@supabase/supabase-js": "^2.104.1",
