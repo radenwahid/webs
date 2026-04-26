@@ -1,0 +1,194 @@
+---
+interface Props { title: string; }
+const { title } = Astro.props;
+---
+<div class="admin-topbar">
+  <h1 class="admin-page-title">{title}</h1>
+  <div class="topbar-right">
+    <!-- Theme Dropdown — sama persis dengan navbar landing -->
+    <div class="theme-dropdown" id="adminThemeDropdown">
+      <button class="theme-btn" id="adminThemeBtn" aria-haspopup="true" aria-expanded="false">
+        <span class="theme-dot" id="adminThemeDot"></span>
+        <span class="theme-label" id="adminThemeLabel">Dark</span>
+        <span class="theme-arrow" id="adminThemeArrow">▾</span>
+      </button>
+      <ul class="theme-menu" id="adminThemeMenu" role="menu">
+        <li role="menuitem" data-theme-val="dark"><span class="dot dot-dark"></span> Dark</li>
+        <li role="menuitem" data-theme-val="light"><span class="dot dot-light"></span> Light</li>
+        <li role="menuitem" data-theme-val="brutal"><span class="dot dot-brutal"></span> Brutal</li>
+        <li role="menuitem" data-theme-val="cyber"><span class="dot dot-cyber"></span> Cyber</li>
+      </ul>
+    </div>
+    <!-- Lang Toggle -->
+    <button class="lang-btn" id="adminLangBtn">ID</button>
+  </div>
+</div>
+
+<script>
+  import gsap from 'gsap';
+
+  const html = document.documentElement;
+  const themes: Record<string, { label: string; color: string }> = {
+    dark:   { label: 'Dark',   color: '#7C3AED' },
+    light:  { label: 'Light',  color: '#6B21A8' },
+    brutal: { label: 'Brutal', color: '#FFEE00' },
+    cyber:  { label: 'Cyber',  color: '#00FF41' },
+  };
+
+  function applyTheme(t: string) {
+    html.setAttribute('data-theme', t);
+    localStorage.setItem('theme', t);
+    const dot = document.getElementById('adminThemeDot');
+    const label = document.getElementById('adminThemeLabel');
+    if (dot) dot.style.background = themes[t]?.color ?? '#fff';
+    if (label) label.textContent = themes[t]?.label ?? t;
+    document.querySelectorAll('#adminThemeMenu li').forEach(li =>
+      li.classList.toggle('active', (li as HTMLElement).dataset.themeVal === t)
+    );
+  }
+  applyTheme(localStorage.getItem('theme') || 'dark');
+
+  const themeBtn = document.getElementById('adminThemeBtn');
+  const themeMenu = document.getElementById('adminThemeMenu');
+  const themeArrow = document.getElementById('adminThemeArrow');
+  let dropOpen = false;
+
+  function openDrop() {
+    dropOpen = true;
+    themeBtn?.setAttribute('aria-expanded', 'true');
+    themeMenu!.style.display = 'flex';
+    gsap.fromTo(themeMenu,
+      { opacity: 0, y: -8, clipPath: 'inset(0 0 100% 0)' },
+      { opacity: 1, y: 0, clipPath: 'inset(0 0 0% 0)', duration: 0.22, ease: 'power2.out' }
+    );
+    gsap.fromTo('#adminThemeMenu li',
+      { opacity: 0, x: -10 },
+      { opacity: 1, x: 0, duration: 0.18, stagger: 0.05, ease: 'power2.out' }
+    );
+    if (themeArrow) themeArrow.style.transform = 'rotate(180deg)';
+  }
+  function closeDrop() {
+    dropOpen = false;
+    themeBtn?.setAttribute('aria-expanded', 'false');
+    gsap.to(themeMenu, {
+      opacity: 0, y: -8, clipPath: 'inset(0 0 100% 0)',
+      duration: 0.18, ease: 'power2.in',
+      onComplete: () => { themeMenu!.style.display = 'none'; }
+    });
+    if (themeArrow) themeArrow.style.transform = 'rotate(0deg)';
+  }
+
+  themeBtn?.addEventListener('click', (e) => { e.stopPropagation(); dropOpen ? closeDrop() : openDrop(); });
+  document.querySelectorAll('#adminThemeMenu li').forEach(li => {
+    li.addEventListener('click', () => { applyTheme((li as HTMLElement).dataset.themeVal!); closeDrop(); });
+  });
+  document.addEventListener('click', () => { if (dropOpen) closeDrop(); });
+
+  // Lang toggle
+  const langBtn = document.getElementById('adminLangBtn');
+  let currentLang = localStorage.getItem('lang') || 'id';
+  langBtn!.textContent = currentLang.toUpperCase();
+  langBtn?.addEventListener('click', () => {
+    currentLang = currentLang === 'id' ? 'en' : 'id';
+    localStorage.setItem('lang', currentLang);
+    langBtn.textContent = currentLang.toUpperCase();
+    document.documentElement.setAttribute('lang', currentLang);
+    window.dispatchEvent(new Event('langchange'));
+  });
+</script>
+
+<style>
+.admin-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 3px solid var(--border-color);
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+.admin-page-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 2rem;
+  font-weight: 800;
+  margin: 0;
+}
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+}
+
+/* Theme dropdown — sama dengan navbar */
+.theme-dropdown { position: relative; }
+.theme-btn {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .4rem .85rem;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: .8rem;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  background: none;
+  border: 2px solid var(--border-color);
+  box-shadow: 3px 3px 0 var(--shadow-color);
+  color: var(--text);
+  cursor: pointer;
+  transition: transform .1s, box-shadow .1s;
+  white-space: nowrap;
+}
+.theme-btn:hover { transform: translate(-1px,-1px); box-shadow: 4px 4px 0 var(--shadow-color); }
+.theme-dot { width:10px;height:10px;border-radius:50%;border:1.5px solid var(--border-color);flex-shrink:0;transition:background .2s; }
+.theme-arrow { font-size:.7rem;transition:transform .2s ease;display:inline-block; }
+.theme-menu {
+  display: none;
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  flex-direction: column;
+  min-width: 130px;
+  background: var(--bg);
+  border: 2px solid var(--border-color);
+  box-shadow: 6px 6px 0 var(--shadow-color);
+  z-index: 200;
+}
+.theme-menu li {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  padding: .65rem 1rem;
+  font-weight: 600;
+  font-size: .85rem;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  cursor: pointer;
+  transition: background .15s, color .15s;
+  border-bottom: 1px solid var(--border-color);
+}
+.theme-menu li:last-child { border-bottom: none; }
+.theme-menu li:hover, .theme-menu li.active { background: var(--accent); color: var(--accent-text); }
+.dot { width:10px;height:10px;border-radius:50%;border:1.5px solid var(--border-color);flex-shrink:0; }
+.dot-dark { background:#7C3AED; }
+.dot-light { background:#6B21A8; }
+.dot-brutal { background:#FFEE00;border-color:#0A0A0A; }
+.dot-cyber { background:#00FF41; }
+
+/* Lang button */
+.lang-btn {
+  padding: .4rem .65rem;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 800;
+  font-size: .75rem;
+  letter-spacing: .08em;
+  background: none;
+  border: 2px solid var(--border-color);
+  box-shadow: 3px 3px 0 var(--shadow-color);
+  color: var(--text);
+  cursor: pointer;
+  transition: transform .1s, box-shadow .1s, background .15s;
+}
+.lang-btn:hover { background: var(--accent); color: var(--accent-text); transform: translate(-1px,-1px); box-shadow: 4px 4px 0 var(--shadow-color); }
+</style>

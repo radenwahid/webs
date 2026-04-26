@@ -2,6 +2,7 @@
 export const prerender = false;
 import Layout from '../../layouts/Layout.astro';
 import AdminSidebar from '../../components/AdminSidebar.astro';
+import AdminTopbar from '../../components/AdminTopbar.astro';
 import { requireAuth } from '../../lib/auth';
 import { supabaseAdmin } from '../../lib/supabase';
 
@@ -19,7 +20,7 @@ const [{ data: services }, { data: testimonials }, { data: projects }] = await P
     <AdminSidebar active="dashboard" />
 
     <main class="admin-main">
-      <h1 class="admin-title">Dashboard</h1>
+      <AdminTopbar title="Dashboard" />
       <div class="stats-grid">
         <div class="stat-card">
           <div class="stat-num">{services?.length ?? 0}</div>

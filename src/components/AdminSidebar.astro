@@ -13,39 +13,4 @@ const { active } = Astro.props;
     <a href="/" target="_blank">Lihat Site</a>
     <a href="/admin/logout" class="logout">Logout</a>
   </nav>
-  <div class="sidebar-themes">
-    <span class="sidebar-themes-label">Tema</span>
-    <div class="sidebar-theme-btns">
-      <button class="sidebar-theme-btn" data-t="dark">
-        <span class="theme-swatch" style="background:#7C3AED"></span>Dark
-      </button>
-      <button class="sidebar-theme-btn" data-t="light">
-        <span class="theme-swatch" style="background:#6B21A8"></span>Light
-      </button>
-      <button class="sidebar-theme-btn" data-t="brutal">
-        <span class="theme-swatch" style="background:#FFEE00;border-color:#000"></span>Brutal
-      </button>
-      <button class="sidebar-theme-btn" data-t="cyber">
-        <span class="theme-swatch" style="background:#00FF41"></span>Cyber
-      </button>
-    </div>
-  </div>
 </aside>
-
-<script>
-  const btns = document.querySelectorAll('.sidebar-theme-btn');
-  const html = document.documentElement;
-  function syncActive() {
-    const cur = html.getAttribute('data-theme') || 'dark';
-    btns.forEach(b => b.classList.toggle('active', (b as HTMLElement).dataset.t === cur));
-  }
-  syncActive();
-  btns.forEach(b => {
-    b.addEventListener('click', () => {
-      const t = (b as HTMLElement).dataset.t!;
-      html.setAttribute('data-theme', t);
-      localStorage.setItem('theme', t);
-      syncActive();
-    });
-  });
-</script>

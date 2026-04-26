@@ -51,51 +51,7 @@
 .sidebar-nav a.logout { color: #ef4444; margin-top: auto; }
 .sidebar-nav a.logout:hover { background: #ef4444; color: #fff; border-left-color: #ef4444; }
 
-/* Theme switcher in sidebar */
-.sidebar-themes {
-  padding: .75rem 1.25rem;
-  border-top: 2px solid var(--border-color);
-  margin-top: .5rem;
-}
-.sidebar-themes-label {
-  font-size: .7rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: .1em;
-  color: var(--text-muted);
-  margin-bottom: .5rem;
-  display: block;
-}
-.sidebar-theme-btns {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: .4rem;
-}
-.sidebar-theme-btn {
-  padding: .35rem .5rem;
-  font-size: .7rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: .04em;
-  border: 2px solid var(--border-color);
-  background: none;
-  color: var(--text);
-  cursor: pointer;
-  transition: background .15s, color .15s;
-  display: flex;
-  align-items: center;
-  gap: .3rem;
-}
-.sidebar-theme-btn:hover, .sidebar-theme-btn.active {
-  background: var(--accent);
-  color: var(--accent-text);
-}
-.theme-swatch {
-  width: 8px; height: 8px;
-  border-radius: 50%;
-  border: 1px solid currentColor;
-  flex-shrink: 0;
-}
+/* Theme switcher moved to AdminTopbar */
 
 .admin-main {
   flex: 1;

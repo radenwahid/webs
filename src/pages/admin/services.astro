@@ -2,6 +2,7 @@
 export const prerender = false;
 import Layout from '../../layouts/Layout.astro';
 import AdminSidebar from '../../components/AdminSidebar.astro';
+import AdminTopbar from '../../components/AdminTopbar.astro';
 import { requireAuth } from '../../lib/auth';
 import { supabaseAdmin } from '../../lib/supabase';
 
@@ -36,8 +37,8 @@ const { data: services } = await supabaseAdmin.from('services').select('*').orde
 <div class="admin-wrap">
   <AdminSidebar active="services" />
   <main class="admin-main">
-    <div class="admin-toolbar">
-      <h1 class="admin-title" style="margin:0;border:none;padding:0">Services</h1>
+    <AdminTopbar title="Services" />
+    <div style="margin-bottom:1.5rem">
       <button class="btn btn-primary" onclick="openModal('create')">+ Tambah Service</button>
     </div>
     {message && <div class={`alert ${isError ? 'alert-error' : 'alert-success'}`}>{message}</div>}
