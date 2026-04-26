@@ -24,15 +24,15 @@ if (Astro.request.method === 'POST') {
       visible: form.get('visible') === 'true',
     };
     if (action === 'create') {
-      await supabaseAdmin.from('services').insert(data);
-      message = 'Service berhasil ditambahkan!';
+      const { error } = await supabaseAdmin.from('services').insert(data);
+      message = error ? `❌ Error: ${error.message}` : '✓ Service berhasil ditambahkan!';
     } else {
-      await supabaseAdmin.from('services').update(data).eq('id', form.get('id'));
-      message = 'Service berhasil diupdate!';
+      const { error } = await supabaseAdmin.from('services').update(data).eq('id', form.get('id'));
+      message = error ? `❌ Error: ${error.message}` : '✓ Service berhasil diupdate!';
     }
   } else if (action === 'delete') {
-    await supabaseAdmin.from('services').delete().eq('id', form.get('id'));
-    message = 'Service dihapus.';
+    const { error } = await supabaseAdmin.from('services').delete().eq('id', form.get('id'));
+    message = error ? `❌ Error: ${error.message}` : '✓ Service dihapus.';
   }
 }
 

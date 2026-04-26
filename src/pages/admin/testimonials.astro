@@ -18,11 +18,16 @@ if (Astro.request.method === 'POST') {
       text: form.get('text'), stars: Number(form.get('stars') || 5),
       tag: form.get('tag'), visible: form.get('visible') === 'true',
     };
-    if (action === 'create') { await supabaseAdmin.from('testimonials').insert(data); message = 'Testimoni ditambahkan!'; }
-    else { await supabaseAdmin.from('testimonials').update(data).eq('id', form.get('id')); message = 'Testimoni diupdate!'; }
+    if (action === 'create') {
+      const { error } = await supabaseAdmin.from('testimonials').insert(data);
+      message = error ? `❌ Error: ${error.message}` : '✓ Testimoni ditambahkan!';
+    } else {
+      const { error } = await supabaseAdmin.from('testimonials').update(data).eq('id', form.get('id'));
+      message = error ? `❌ Error: ${error.message}` : '✓ Testimoni diupdate!';
+    }
   } else if (action === 'delete') {
-    await supabaseAdmin.from('testimonials').delete().eq('id', form.get('id'));
-    message = 'Testimoni dihapus.';
+    const { error } = await supabaseAdmin.from('testimonials').delete().eq('id', form.get('id'));
+    message = error ? `❌ Error: ${error.message}` : '✓ Testimoni dihapus.';
   }
 }
 
